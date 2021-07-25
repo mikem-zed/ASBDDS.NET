@@ -1,0 +1,3 @@
+[submodule "tftp.net"]
+	path = tftp.net
+	url = ../tftp.net.git
