@@ -12,7 +12,5 @@ namespace ASBBDS.Library.Models.DataBase
         public DbSet<Switch> Switches { get; set; }
         public DbSet<Router> Routers { get; set; }
         public DbSet<Project> Projects { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-             => optionsBuilder.UseNpgsql("Host=localhost;Database=ASBDDS;Username=postgres;Password=903632as");
     }
 }

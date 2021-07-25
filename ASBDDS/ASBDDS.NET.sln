@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASBDDS.NET", "ASBDDS.NET\ASBDDS.NET.csproj", "{FB19286B-D164-4F72-962A-4E941BA4A2A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.API", "ASBDDS.API\ASBDDS.API.csproj", "{FB19286B-D164-4F72-962A-4E941BA4A2A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASBBDS.Library", "ASBBDS.Library\ASBBDS.Library.csproj", "{FF4BB459-D7DB-4458-A1A6-12E30163818A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBBDS.Shared", "ASBBDS.Shared\ASBBDS.Shared.csproj", "{FF4BB459-D7DB-4458-A1A6-12E30163818A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

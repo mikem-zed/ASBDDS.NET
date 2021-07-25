@@ -1,7 +1,6 @@
 ﻿namespace ASBBDS.Library.Models.DataBase
 {
-    public class Router
+    public class Router : DbBaseModel
     {
-        public int Id { get; set; }
     }
 }
