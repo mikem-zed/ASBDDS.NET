@@ -1,3 +1,6 @@
 [submodule "tftp.net"]
 	path = tftp.net
 	url = ../tftp.net.git
+[submodule "DHCPServer"]
+	path = DHCPServer
+	url = ../DHCPServer.git
