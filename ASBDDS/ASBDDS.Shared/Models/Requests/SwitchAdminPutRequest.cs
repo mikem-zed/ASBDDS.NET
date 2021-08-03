@@ -5,16 +5,16 @@ using System.Text;
 
 namespace ASBDDS.Shared.Models.Requests
 {
-    public class SwitchPortPostRequest
+    public class SwitchAdminPortPutRequest
     {
         public string Number { get; set; }
         public SwitchPortType Type { get; set; }
     }
 
-    public class SwitchPostRequest
+    public class SwitchAdminPutRequest
     {
         public string Serial { get; set; }
         public string Name { get; set; }
-        public virtual List<SwitchPortPostRequest> Ports { get; set; }
+        public virtual List<SwitchAdminPortPutRequest> Ports { get; set; }
     }
 }
