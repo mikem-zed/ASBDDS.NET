@@ -1,0 +1,16 @@
+﻿<MudPaper Width="250px" Class="d-inline-flex py-3" Square="true">
+    <MudNavMenu Class="mud-width-full">
+        <MudText Typo="Typo.h6" Class="px-4">Admin</MudText>
+        <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Authorized</MudText>
+        <MudDivider Class="my-2" />
+        <MudNavLink Href="#" Icon="@Icons.Filled.Dashboard">Dashboard</MudNavLink>
+        <MudNavLink Href="/counter" Icon="@Icons.Filled.DevicesOther">Devices</MudNavLink>
+        <MudNavLink Href="/fetchdata" Icon="@Icons.Filled.Receipt">Billing</MudNavLink>
+        <MudNavGroup Title="Settings" Icon="@Icons.Filled.Settings" Expanded="false">
+            <MudNavLink Href="/users" Icon="@Icons.Filled.People" IconColor="Color.Success">User</MudNavLink>
+            <MudNavLink Href="/apikeys" Icon="@Icons.Filled.VpnKey" IconColor="Color.Info">API Keys</MudNavLink>
+            <MudNavLink Href="/projects" Icon="@Icons.Filled.TableView" IconColor="Color.Success">Projects</MudNavLink>
+        </MudNavGroup>
+        <MudNavLink Href="/swagger" Target="_blank" Icon="@Icons.Filled.Book">Swagger</MudNavLink>
+    </MudNavMenu>
+</MudPaper>

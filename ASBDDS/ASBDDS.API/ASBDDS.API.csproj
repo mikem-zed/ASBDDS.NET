@@ -5,25 +5,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
+    <PackageReference Include="Singulink.Net.Dhcp" Version="1.0.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <Folder Include="images\ipxe\" />
+    <Folder Include="images\rpi4\" />
+    <Folder Include="tftp_root\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="images\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ASBBDS.Library\ASBBDS.Shared.csproj" />
+    <ProjectReference Include="..\..\tftp.net\Tftp.Net\Tftp.Net.csproj" />
+    <ProjectReference Include="..\ASBDDS.Shared\ASBDDS.Shared.csproj" />
+    <ProjectReference Include="..\ASBDDS.Web.Admin\ASBDDS.Web.Admin.csproj" />
+    <ProjectReference Include="..\ASBDDS.Web.Client\ASBDDS.Web.Client.csproj" />
   </ItemGroup>
-
 </Project>

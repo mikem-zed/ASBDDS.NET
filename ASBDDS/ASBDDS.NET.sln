@@ -4,8 +4,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.API", "ASBDDS.API\ASBDDS.API.csproj", "{FB19286B-D164-4F72-962A-4E941BA4A2A1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FCF72841-688F-4A79-A555-2D202881FDEF} = {FCF72841-688F-4A79-A555-2D202881FDEF}
+		{22ED3650-7821-4D1D-8B27-821C7A4BE293} = {22ED3650-7821-4D1D-8B27-821C7A4BE293}
+	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBBDS.Shared", "ASBBDS.Shared\ASBBDS.Shared.csproj", "{FF4BB459-D7DB-4458-A1A6-12E30163818A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.Shared", "ASBDDS.Shared\ASBDDS.Shared.csproj", "{FF4BB459-D7DB-4458-A1A6-12E30163818A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tftp.Net", "..\tftp.net\Tftp.Net\Tftp.Net.csproj", "{2FCA4316-80EC-4852-B0D4-CB679E950565}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{1475A0EC-7C98-4457-BBBA-70192E4A6C2F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.Web.Client", "ASBDDS.Web.Client\ASBDDS.Web.Client.csproj", "{FCF72841-688F-4A79-A555-2D202881FDEF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FF4BB459-D7DB-4458-A1A6-12E30163818A} = {FF4BB459-D7DB-4458-A1A6-12E30163818A}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.Web.Admin", "ASBDDS.Web.Admin\ASBDDS.Web.Admin.csproj", "{22ED3650-7821-4D1D-8B27-821C7A4BE293}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +36,24 @@ Global
 		{FF4BB459-D7DB-4458-A1A6-12E30163818A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF4BB459-D7DB-4458-A1A6-12E30163818A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF4BB459-D7DB-4458-A1A6-12E30163818A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FCA4316-80EC-4852-B0D4-CB679E950565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FCA4316-80EC-4852-B0D4-CB679E950565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FCA4316-80EC-4852-B0D4-CB679E950565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FCA4316-80EC-4852-B0D4-CB679E950565}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCF72841-688F-4A79-A555-2D202881FDEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCF72841-688F-4A79-A555-2D202881FDEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCF72841-688F-4A79-A555-2D202881FDEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCF72841-688F-4A79-A555-2D202881FDEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2FCA4316-80EC-4852-B0D4-CB679E950565} = {1475A0EC-7C98-4457-BBBA-70192E4A6C2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F56D7A4-CA2A-487B-84F8-2DE37CE5A30C}
