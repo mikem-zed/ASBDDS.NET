@@ -21,7 +21,7 @@ namespace ASBDDS.API.Migrations.DataDb
 
             modelBuilder.Entity("ASBDDS.Shared.Models.Database.DataDb.Device", b =>
                 {
-                    b.Property<Guid>("InternalId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -31,7 +31,7 @@ namespace ASBDDS.API.Migrations.DataDb
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid?>("ExternalId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("MacAddress")
@@ -42,9 +42,6 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
-
-                    b.Property<Guid>("ProjectGuid")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("ProjectId")
                         .HasColumnType("uuid");
@@ -61,7 +58,7 @@ namespace ASBDDS.API.Migrations.DataDb
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.HasKey("InternalId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
@@ -188,7 +185,7 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.HasIndex("SwitchId");
 
-                    b.ToTable("SwitchPort");
+                    b.ToTable("SwitchPorts");
                 });
 
             modelBuilder.Entity("ASBDDS.Shared.Models.Database.DataDb.Device", b =>

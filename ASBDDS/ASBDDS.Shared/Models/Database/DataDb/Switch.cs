@@ -13,8 +13,6 @@ namespace ASBDDS.Shared.Models.Database.DataDb
         [JsonIgnore]
         [XmlIgnore]
         public virtual Router Router { get; set; }
-        [JsonPropertyName("routerId")]
-        [XmlElement(ElementName = "routerId")]
         public virtual Guid? RouterGuid { get => Router?.Id; }
         public virtual List<SwitchPort> Ports { get; set; }
     }
