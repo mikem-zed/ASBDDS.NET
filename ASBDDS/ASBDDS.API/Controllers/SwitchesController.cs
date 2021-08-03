@@ -10,7 +10,7 @@ using ASBDDS.Shared.Models.Requests;
 
 namespace ASBDDS.API.Controllers
 {
-    [Route("api/admin/[controller]")]
+    [Route("api/admin/switches")]
     [ApiController]
     public class SwitchesController : ControllerBase
     {
@@ -23,12 +23,18 @@ namespace ASBDDS.API.Controllers
 
         // GET: api/Switches
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<List<Switch>>>> GetSwitches()
+        public async Task<ActionResult<ApiResponse<List<SwitchAdminResponse>>>> GetSwitches()
         {
-            var resp = new ApiResponse<List<Switch>>();
+            var resp = new ApiResponse<List<SwitchAdminResponse>>();
             try
             {
-                resp.Data = await _context.Switches.Include(s => s.Ports).ToListAsync();
+                var switches = await _context.Switches.Include(s => s.Ports).ToListAsync();
+                var _switches = new List<SwitchAdminResponse>();
+                foreach (Switch _switch in switches)
+                {
+                    _switches.Add(new SwitchAdminResponse(_switch));
+                }
+                resp.Data = _switches;
             }
             catch (Exception e)
             {
@@ -39,26 +45,72 @@ namespace ASBDDS.API.Controllers
 
         // GET: api/Switches/5
         [HttpGet("{id}")]
-        public async Task<ApiResponse<Switch>> GetSwitch(Guid id)
+        public async Task<ApiResponse<SwitchAdminResponse>> GetSwitch(Guid id)
         {
-            var resp = new ApiResponse<Switch>();
+            var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
-                resp.Data = await _context.Switches.FindAsync(id);
+                var _switch = await _context.Switches.FindAsync(id);
+                if(_switch == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Switch not found";
+                }
+                else
+                {
+                    resp.Data = new SwitchAdminResponse(_switch);
+                }
             } 
             catch (Exception e)
             {
                 resp.Status.Code = 1;
+                resp.Status.Message = e.Message;
             }
+            return resp;
+        }
+
+        // PUT: api/Switches/id
+        [HttpPut("{id}")]
+        public async Task<ApiResponse<SwitchAdminResponse>> PutSwitch(Guid id, SwitchAdminPutRequest @switchReq)
+        {
+            var resp = new ApiResponse<SwitchAdminResponse>();
+            try
+            {
+                var _switch = _context.Switches.Include(s => s.Ports).Where(s => s.Id == id).FirstOrDefault();
+
+                if(_switch == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Switch not found";
+                }
+                else
+                {
+                    _switch.Name = switchReq.Name;
+                    _switch.Serial = switchReq.Serial;
+                    _switch.Ports = new List<SwitchPort>();
+                    foreach (var port in switchReq.Ports)
+                        _switch.Ports.Add(new SwitchPort() { Number = port.Number, Type = port.Type, Switch = _switch });
+
+                    _context.Entry(_switch).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    resp.Data = new SwitchAdminResponse(_switch);
+                }
+            }
+            catch(Exception e)
+            {
+                resp.Status.Code = 1;
+                resp.Status.Message = e.Message;
+            }
+
             return resp;
         }
 
         // POST: api/Switches
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ApiResponse<Switch>> PostSwitch(SwitchPostRequest @switchReq)
+        public async Task<ApiResponse<SwitchAdminResponse>> PostSwitch(SwitchAdminPostRequest @switchReq)
         {
-            var resp = new ApiResponse<Switch>();
+            var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
                 var _switch = new Switch()
@@ -71,7 +123,7 @@ namespace ASBDDS.API.Controllers
                     _switch.Ports.Add(new SwitchPort() { Number = port.Number, Type = port.Type, Switch = _switch });
                 _context.Switches.Add(_switch);
                 await _context.SaveChangesAsync();
-                resp.Data = _switch;
+                resp.Data = new SwitchAdminResponse(_switch);
             }
             catch (Exception e)
             {
@@ -84,26 +136,29 @@ namespace ASBDDS.API.Controllers
 
         // DELETE: api/Switches/5
         [HttpDelete("{id}")]
-        public async Task<ApiResponse> DeleteSwitch(Guid id)
+        public async Task<ApiResponse<SwitchAdminResponse>> DeleteSwitch(Guid id)
         {
-            var resp = new ApiResponse();
+            var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
-                var @switch = await _context.Switches.FindAsync(id);
-                if (@switch == null)
+                var _switch = await _context.Switches.FindAsync(id);
+                if (_switch == null)
                 {
-                    resp.Status.Code = 2;
-                    resp.Status.Message = "Not found";
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Switch not found";
                 }
                 else
                 {
-                    _context.Switches.Remove(@switch);
+                    _context.Switches.Remove(_switch);
                     await _context.SaveChangesAsync();
+
+                    resp.Data = new SwitchAdminResponse(_switch);
                 }
             }
             catch (Exception e)
             {
                 resp.Status.Code = 1;
+                resp.Status.Message = e.Message;
             }
             return resp;
         }
