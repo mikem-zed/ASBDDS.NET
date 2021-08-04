@@ -13,17 +13,19 @@ namespace ASBDDS.Shared.Models.Responses
         public string BaseModel { get; set; }
         public string Serial { get; set; }
         public string MacAddress { get; set; }
-        public Guid SwitchPortId { get; set; }
+        public Guid ProjectId { get; set; }
+        public string State { get; set; }
 
         public DeviceUserResponse(Device _device)
         {
-            Id = _device.Id;
+            Id = (Guid)_device.ExternalId;
             Name = _device.Name;
             Model = _device.Model;
             BaseModel = _device.BaseModel;
             Serial = _device.Serial;
             MacAddress = _device.MacAddress;
-            SwitchPortId = _device.SwitchPort.Id;
+            ProjectId = _device.Project.Id;
+            State = _device.StateEnum.ToString();
         }
     }
 }

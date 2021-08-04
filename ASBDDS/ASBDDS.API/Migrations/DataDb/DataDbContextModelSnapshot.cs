@@ -82,6 +82,9 @@ namespace ASBDDS.API.Migrations.DataDb
                     b.Property<int>("DefaultVlan")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp without time zone");
 
@@ -115,7 +118,7 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectDeviceLimit");
+                    b.ToTable("ProjectDeviceLimits");
                 });
 
             modelBuilder.Entity("ASBDDS.Shared.Models.Database.DataDb.Router", b =>

@@ -53,7 +53,7 @@ namespace ASBDDS.API.Controllers
             try
             {
                 var device = await _context.Devices.Where(d => d.Id == id).Include(d => d.SwitchPort).FirstOrDefaultAsync();
-                if(resp.Data == null)
+                if(device == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Device not found";
@@ -80,35 +80,26 @@ namespace ASBDDS.API.Controllers
             try
             {
                 var device = await _context.Devices.Where(d => d.Id == id).Include(d => d.SwitchPort).ThenInclude(d => d.Switch).FirstOrDefaultAsync();
-                device.BaseModel = deviceReq.BaseModel;
-                device.MacAddress = deviceReq.MacAddress;
-                device.Model = deviceReq.Model;
-                device.Name = deviceReq.Name;
-                device.Serial = deviceReq.Serial;
+                var switchPort = await _context.SwitchPorts.FindAsync(deviceReq.SwitchPortId);
 
-                Switch _switch = null;
-                if (deviceReq.SwitchGuid != null)
+                if(switchPort == null)
                 {
-                    _switch = _context.Switches.Find(deviceReq.SwitchGuid);
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Switch port not found";
                 }
                 else
                 {
-                    _switch = device.SwitchPort.Switch;
-                }
+                    device.BaseModel = deviceReq.BaseModel;
+                    device.MacAddress = deviceReq.MacAddress;
+                    device.Model = deviceReq.Model;
+                    device.Name = deviceReq.Name;
+                    device.Serial = deviceReq.Serial;
+                    device.SwitchPort = switchPort;
 
-                if (_switch != null)
-                {
-                    device.SwitchPort = new SwitchPort
-                    {
-                        Number = deviceReq.SwitchPort.Number,
-                        Type = deviceReq.SwitchPort.Type,
-                        Switch = _switch
-                    };
+                    _context.Entry(device).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    resp.Data = new DeviceAdminResponse(device);
                 }
-                
-                _context.Entry(device).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                resp.Data = new DeviceAdminResponse(device);
             }
             catch(Exception e)
             {
@@ -166,7 +157,7 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceAdminResponse>();
             try
             {
-                var device = await _context.Devices.FindAsync(id);
+                var device = await _context.Devices.Where(d => d.Id == id).Include(d => d.SwitchPort).FirstOrDefaultAsync();
                 if (device == null)
                 {
                     resp.Status.Code = 1;
@@ -193,12 +184,13 @@ namespace ASBDDS.API.Controllers
         #region User panel API
         // GET: api/Devices
         [HttpGet("api/devices/")]
-        public async Task<ActionResult<ApiResponse<List<DeviceUserResponse>>>> GetUserDevices()
+        public async Task<ActionResult<ApiResponse<List<DeviceUserResponse>>>> GetUserDevices(Guid projectId)
         {
             var resp = new ApiResponse<List<DeviceUserResponse>>();
             try
             {
-                var devices = await _context.Devices.Include(d => d.SwitchPort).ToArrayAsync();
+                var devices = await _context.Devices.Where(d => d.ExternalId != null && d.Project != null && d.Project.Id == projectId)
+                    .Include(d => d.SwitchPort).ToArrayAsync();
                 var _devices = new List<DeviceUserResponse>();
                 foreach (Device device in devices)
                 {
@@ -216,13 +208,14 @@ namespace ASBDDS.API.Controllers
 
         // GET: api/Devices/5
         [HttpGet("api/devices/{id}")]
-        public async Task<ActionResult<ApiResponse<DeviceUserResponse>>> GetUserDevice(Guid id)
+        public async Task<ActionResult<ApiResponse<DeviceUserResponse>>> GetUserDevice(Guid id, Guid projectId)
         {
             var resp = new ApiResponse<DeviceUserResponse>();
             try
             {
-                var device = await _context.Devices.Where(d => d.Id == id).Include(d => d.SwitchPort).FirstOrDefaultAsync();
-                if (resp.Data == null)
+                var device = await _context.Devices.Where(d => d.ExternalId != null && d.ExternalId == id && d.Project != null && d.Project.Id == projectId)
+                    .Include(d => d.SwitchPort).FirstOrDefaultAsync();
+                if (device == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Device not found";
@@ -246,7 +239,7 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceUserResponse>();
             try
             {
-                var device = await _context.Devices.FindAsync(id);
+                var device = await _context.Devices.Where(d => d.ExternalId != null && d.ExternalId == id).FirstOrDefaultAsync();
                 device.Name = deviceReq.Name;
 
                 _context.Entry(device).State = EntityState.Modified;
@@ -263,36 +256,33 @@ namespace ASBDDS.API.Controllers
 
         // POST: api/Devices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("api/admin/devices/")]
-        public async Task<ActionResult<ApiResponse<DeviceUserResponse>>> PostUserDevice(DeviceUserPostRequest @deviceReq)
+        [HttpPost("api/devices/")]
+        public async Task<ActionResult<ApiResponse<DeviceUserResponse>>> PostUserDevice(DeviceUserPostRequest @deviceReq, Guid projectId)
         {
             var resp = new ApiResponse<DeviceUserResponse>();
             try
             {
-                var _switchPort = await _context.SwitchPorts.FindAsync(deviceReq.SwitchPortId);
-                if (_switchPort == null)
+                var project = await _context.Projects.FindAsync(projectId);
+                if(project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Switch port not found";
+                    resp.Status.Message = "Project not found";
+                    return resp;
                 }
-                else
+                var device = await _context.Devices.Where(d => d.ExternalId == null && d.Model == deviceReq.Model).FirstOrDefaultAsync();
+                if(device == null)
                 {
-                    var device = new Device
-                    {
-                        BaseModel = deviceReq.BaseModel,
-                        Created = DateTime.Now,
-                        Updated = DateTime.Now,
-                        Serial = deviceReq.Serial,
-                        StateEnum = DeviceState.POWEROFF,
-                        SwitchPort = _switchPort,
-                        MacAddress = deviceReq.MacAddress,
-                        Model = deviceReq.Model,
-                        Name = deviceReq.Name
-                    };
-                    _context.Devices.Add(device);
-                    await _context.SaveChangesAsync();
-                    resp.Data = new DeviceUserResponse(device);
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "There are no available devices with the specified model";
+                    return resp;
                 }
+  
+                device.ExternalId = new Guid();
+                device.Name = deviceReq.Name;
+                device.Project = project;
+                device.StateEnum = DeviceState.CREATING;
+                await _context.SaveChangesAsync();
+                resp.Data = new DeviceUserResponse(device);
             }
             catch (Exception e)
             {
@@ -303,25 +293,32 @@ namespace ASBDDS.API.Controllers
         }
 
         // DELETE: api/Devices/5
-        [HttpDelete("api/admin/devices/{id}")]
-        public async Task<ActionResult<ApiResponse<DeviceUserResponse>>> DeleteUserDevice(Guid id)
+        [HttpDelete("api/devices/{id}")]
+        public async Task<ActionResult<ApiResponse<DeviceUserResponse>>> DeleteUserDevice(Guid id, Guid projectId)
         {
             var resp = new ApiResponse<DeviceUserResponse>();
             try
             {
+                var project = await _context.Projects.FindAsync(projectId);
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
+
                 var device = await _context.Devices.FindAsync(id);
                 if (device == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Device not found";
+                    return resp;
                 }
-                else
-                {
-                    //_context.Devices.Remove(device);
-                    device.Project = null;
-                    await _context.SaveChangesAsync();
-                    resp.Data = new DeviceUserResponse(device);
-                }
+
+                device.StateEnum = DeviceState.ERASING;
+                await _context.SaveChangesAsync();
+                resp.Data = new DeviceUserResponse(device);
+                
             }
             catch (Exception e)
             {
@@ -332,10 +329,5 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
         #endregion
-
-        private bool DeviceExists(Guid id)
-        {
-            return _context.Devices.Any(e => e.Id == id);
-        }
     }
 }

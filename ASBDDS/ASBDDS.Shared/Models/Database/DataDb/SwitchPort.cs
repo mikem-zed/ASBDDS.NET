@@ -19,14 +19,9 @@ namespace ASBDDS.Shared.Models.Database.DataDb
             Id = new Guid();
         }
 
-        [Key]
-        [JsonIgnore]
-        [XmlIgnore]
         public Guid Id { get; set; }
         public string Number { get; set; }
         public SwitchPortType Type { get; set; }
-        [JsonIgnore]
-        [XmlIgnore]
         public virtual Switch Switch { get; set; }
     }
 }

@@ -15,6 +15,6 @@ namespace ASBDDS.Shared.Models.Database.DataDb
         public string Serial { get; set; }
         public string MacAddress { get; set; }
         public virtual SwitchPort SwitchPort { get; set; }
-        public virtual Project Project { get; set; }
+        public virtual Project? Project { get; set; }
     }
 }

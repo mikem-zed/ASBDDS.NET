@@ -14,12 +14,6 @@ namespace ASBDDS.Shared.Models.Requests
         public string BaseModel { get; set; }
         public string Serial { get; set; }
         public string MacAddress { get; set; }
-        [JsonPropertyName("switchId")]
-        [XmlElement(ElementName = "switchId")]
-        public Guid? SwitchGuid { get; set; }
-        public virtual SwitchPort SwitchPort { get; set; }
-        [JsonPropertyName("projectId")]
-        [XmlElement(ElementName = "projectId")]
-        public virtual Guid ProjectGuid { get; set; }
+        public virtual Guid SwitchPortId { get; set; }
     }
 }

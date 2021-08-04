@@ -50,16 +50,16 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
-                var _switch = await _context.Switches.FindAsync(id);
+                var _switch = await _context.Switches.Where(s => s.Id == id).Include(s => s.Ports).FirstOrDefaultAsync();
                 if(_switch == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Switch not found";
+                    return resp;
                 }
-                else
-                {
-                    resp.Data = new SwitchAdminResponse(_switch);
-                }
+
+                resp.Data = new SwitchAdminResponse(_switch);
+                
             } 
             catch (Exception e)
             {
@@ -76,25 +76,58 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
-                var _switch = _context.Switches.Include(s => s.Ports).Where(s => s.Id == id).FirstOrDefault();
+                var _switch = _context.Switches.Where(s => s.Id == id).Include(s => s.Ports).FirstOrDefault();
 
                 if(_switch == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Switch not found";
+                    return resp;
                 }
-                else
-                {
-                    _switch.Name = switchReq.Name;
-                    _switch.Serial = switchReq.Serial;
-                    _switch.Ports = new List<SwitchPort>();
-                    foreach (var port in switchReq.Ports)
-                        _switch.Ports.Add(new SwitchPort() { Number = port.Number, Type = port.Type, Switch = _switch });
 
-                    _context.Entry(_switch).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                    resp.Data = new SwitchAdminResponse(_switch);
+                _switch.Name = switchReq.Name;
+                _switch.Serial = switchReq.Serial;
+
+                // 1. Найти каждый порт, если указан айди и изменить его
+                // 2. Если передан порт без айди - создать его
+                // 3. Если в запросе нет порта с айди, который есть в базе, его надо удалить, если к нему не подключено устройств. Если устройства есть, выдать ошибку
+
+                var currentPorts = _switch.Ports;
+                _switch.Ports = new List<SwitchPort>();
+                foreach (var reqPort in switchReq.Ports)
+                {
+                    if (reqPort.Id != null)
+                    {
+                        var _port = await _context.SwitchPorts.FindAsync(reqPort.Id);
+                        _port.Number = reqPort.Number;
+                        _port.Type = reqPort.Type;
+                        _switch.Ports.Add(_port);
+                    }
+                    else
+                    {
+                        _switch.Ports.Add(new SwitchPort() { Number = reqPort.Number, Type = reqPort.Type, Switch = _switch, Id = new Guid() });
+                    }
                 }
+
+                foreach (var port in currentPorts)
+                {
+                    if(!switchReq.Ports.Any(p => p.Id != null && p.Id == port.Id))
+                    {
+                        var hasDevice = _context.Devices.Where(d => d.SwitchPort.Id == port.Id).Any();
+                        if(hasDevice)
+                        {
+                            resp.Status.Code = 1;
+                            resp.Status.Message = "No port with attached devices is specified";
+                            return resp;
+                        }
+                        _context.SwitchPorts.Remove(port);
+                    }
+                }
+
+                _context.Entry(_switch).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                resp.Data = new SwitchAdminResponse(_switch);
+                
             }
             catch(Exception e)
             {
@@ -141,19 +174,31 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
-                var _switch = await _context.Switches.FindAsync(id);
+                var _switch = await _context.Switches.Where(s => s.Id == id).Include(s => s.Ports).FirstOrDefaultAsync();
                 if (_switch == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Switch not found";
+                    return resp;
                 }
-                else
+                // Проверять, привязаны ли устройства, если да - ошибка
+                foreach(var port in _switch.Ports)
                 {
-                    _context.Switches.Remove(_switch);
-                    await _context.SaveChangesAsync();
-
-                    resp.Data = new SwitchAdminResponse(_switch);
+                    var hasDevice = _context.Devices.Where(d => d.SwitchPort.Id == port.Id).Any();
+                    if (hasDevice)
+                    {
+                        resp.Status.Code = 1;
+                        resp.Status.Message = "At least one port has a device bound to it";
+                        return resp;
+                    }
+                    _context.SwitchPorts.Remove(port);
                 }
+                    
+                
+                _context.Switches.Remove(_switch);
+                await _context.SaveChangesAsync();
+
+                resp.Data = new SwitchAdminResponse(_switch);
             }
             catch (Exception e)
             {
@@ -161,11 +206,6 @@ namespace ASBDDS.API.Controllers
                 resp.Status.Message = e.Message;
             }
             return resp;
-        }
-
-        private bool SwitchExists(Guid id)
-        {
-            return _context.Switches.Any(e => e.Id == id);
         }
     }
 }

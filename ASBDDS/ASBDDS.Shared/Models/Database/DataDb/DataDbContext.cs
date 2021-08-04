@@ -14,5 +14,6 @@ namespace ASBDDS.Shared.Models.Database.DataDb
         public DbSet<SwitchPort> SwitchPorts { get; set; }
         public DbSet<Router> Routers { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectDeviceLimit> ProjectDeviceLimits { get; set; }
     }
 }

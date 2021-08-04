@@ -4,9 +4,8 @@ using System.Text;
 
 namespace ASBDDS.Shared.Models.Requests
 {
-    public class DeviceUserPostRequest
+    public class ProjectUserPutRequest
     {
         public string Name { get; set; }
-        public string Model { get; set; }
     }
 }
