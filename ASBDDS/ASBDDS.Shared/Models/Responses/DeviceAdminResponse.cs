@@ -25,5 +25,7 @@ namespace ASBDDS.Shared.Models.Responses
             MacAddress = _device.MacAddress;
             SwitchPortId = _device.SwitchPort.Id;
         }
+
+        public DeviceAdminResponse() { }
     }
 }

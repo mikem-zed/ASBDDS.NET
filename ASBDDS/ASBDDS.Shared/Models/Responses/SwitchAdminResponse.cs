@@ -30,6 +30,8 @@ namespace ASBDDS.Shared.Models.Responses
         public virtual Guid? RouterId { get; set; }
         public virtual List<SwitchPortAdminResponse> Ports { get; set; }
 
+        public SwitchAdminResponse() { }
+
         public SwitchAdminResponse(Switch _switch)
         {
             Id = _switch.Id;

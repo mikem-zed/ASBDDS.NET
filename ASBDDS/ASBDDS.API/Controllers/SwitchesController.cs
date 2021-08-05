@@ -87,6 +87,7 @@ namespace ASBDDS.API.Controllers
 
                 _switch.Name = switchReq.Name;
                 _switch.Serial = switchReq.Serial;
+                _switch.Ip = switchReq.Ip;
 
                 // 1. Найти каждый порт, если указан айди и изменить его
                 // 2. Если передан порт без айди - создать его
@@ -150,6 +151,7 @@ namespace ASBDDS.API.Controllers
                 {
                     Serial = @switchReq.Serial,
                     Name = @switchReq.Name,
+                    Ip = switchReq.Ip
                 };
                 _switch.Ports = new List<SwitchPort>();
                 foreach (var port in @switchReq.Ports)

@@ -51,6 +51,13 @@ namespace ASBDDS.API.Controllers
             {
                 var project = await _context.Projects.Where(p => p.Id == id).Include(p => p.ProjectDeviceLimits).FirstOrDefaultAsync();
 
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
+
                 resp.Data = new ProjectAdminResponse(project);
             }
             catch (Exception e)
@@ -107,7 +114,8 @@ namespace ASBDDS.API.Controllers
                 {
                     Name = projectReq.Name,
                     DefaultVlan = projectReq.DefaultVlan,
-                    AllowCustomBootloaders = projectReq.AllowCustomBootloaders
+                    AllowCustomBootloaders = projectReq.AllowCustomBootloaders,
+                    ProjectDeviceLimits = new List<ProjectDeviceLimit>()
                 };
 
                 foreach(var deviceLimit in projectReq.ProjectDeviceLimits)
@@ -118,7 +126,7 @@ namespace ASBDDS.API.Controllers
                         Model = deviceLimit.Model,
                         Project = project
                     };
-                    _context.ProjectDeviceLimits.Add(_deviceLimit);
+                    //_context.ProjectDeviceLimits.Add(_deviceLimit);
                     project.ProjectDeviceLimits.Add(_deviceLimit);
                 }
 
@@ -149,12 +157,10 @@ namespace ASBDDS.API.Controllers
                     return resp;
                 }
 
-                //ProjectDeviceLimits нет в DataDb
-
-                //foreach(var deviceLimit in project.ProjectDeviceLimits)
-                //{
-                //    _context.P
-                //}
+                foreach (var deviceLimit in project.ProjectDeviceLimits)
+                {
+                    _context.ProjectDeviceLimits.Remove(deviceLimit);
+                }
 
                 _context.Projects.Remove(project);
                 await _context.SaveChangesAsync();
@@ -199,6 +205,13 @@ namespace ASBDDS.API.Controllers
             try
             {
                 var project = await _context.Projects.Where(p => p.Id == id).Include(p => p.ProjectDeviceLimits).FirstOrDefaultAsync();
+
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
 
                 resp.Data = new ProjectUserResponse(project);
             }
@@ -278,10 +291,13 @@ namespace ASBDDS.API.Controllers
                     return resp;
                 }
 
-                //_context.Projects.Remove(project);
-                //await _context.SaveChangesAsync();
+                foreach (var deviceLimit in project.ProjectDeviceLimits)
+                {
+                    _context.ProjectDeviceLimits.Remove(deviceLimit);
+                }
+                _context.Projects.Remove(project);
+                await _context.SaveChangesAsync();
                 resp.Data = new ProjectUserResponse(project);
-
             }
             catch (Exception e)
             {
