@@ -36,8 +36,10 @@ namespace ASBDDS.NET
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASBDDS.NET", Version = "v1" });
-                var filePath = Path.Combine(System.AppContext.BaseDirectory, "ASBDDS.Shared.xml");
-                c.IncludeXmlComments(filePath);
+                var filePathShared = Path.Combine(System.AppContext.BaseDirectory, "ASBDDS.Shared.xml");
+                var filePathApi = Path.Combine(System.AppContext.BaseDirectory, "ASBDDS.API.xml");
+                c.IncludeXmlComments(filePathShared);
+                c.IncludeXmlComments(filePathApi);
             });
         }
 
@@ -74,7 +76,7 @@ namespace ASBDDS.NET
                 adminPanel.UseRouting();
                 adminPanel.UseEndpoints(endpoints =>
                 {
-                      endpoints.MapControllers();
+                    endpoints.MapControllers();
                     endpoints.MapFallbackToFile("/admin/{*path:nonfile}",
                         "admin/index.html");
                 });

@@ -89,6 +89,7 @@ namespace ASBDDS.API.Controllers
                 _switch.Serial = switchReq.Serial;
                 _switch.Ip = switchReq.Ip;
 
+                // Completed
                 // 1. Найти каждый порт, если указан айди и изменить его
                 // 2. Если передан порт без айди - создать его
                 // 3. Если в запросе нет порта с айди, который есть в базе, его надо удалить, если к нему не подключено устройств. Если устройства есть, выдать ошибку
@@ -135,7 +136,6 @@ namespace ASBDDS.API.Controllers
                 resp.Status.Code = 1;
                 resp.Status.Message = e.Message;
             }
-
             return resp;
         }
 
@@ -170,6 +170,11 @@ namespace ASBDDS.API.Controllers
         }
 
         // DELETE: api/Switches/5
+        /// <summary>
+        /// Удаляем свитч
+        /// </summary>
+        /// <param name="id">Свитч Айди</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<ApiResponse<SwitchAdminResponse>> DeleteSwitch(Guid id)
         {
@@ -183,6 +188,7 @@ namespace ASBDDS.API.Controllers
                     resp.Status.Message = "Switch not found";
                     return resp;
                 }
+                // Completed
                 // Проверять, привязаны ли устройства, если да - ошибка
                 foreach(var port in _switch.Ports)
                 {

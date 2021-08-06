@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASBDDS.API.Migrations.DataDb
 {
     [DbContext(typeof(DataDbContext))]
-    [Migration("20210803092839_Init")]
-    partial class Init
+    [Migration("20210804164701_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace ASBDDS.API.Migrations.DataDb
 
             modelBuilder.Entity("ASBDDS.Shared.Models.Database.DataDb.Device", b =>
                 {
-                    b.Property<Guid>("InternalId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -33,7 +33,7 @@ namespace ASBDDS.API.Migrations.DataDb
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid?>("ExternalId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("MacAddress")
@@ -44,9 +44,6 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
-
-                    b.Property<Guid>("ProjectGuid")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("ProjectId")
                         .HasColumnType("uuid");
@@ -63,7 +60,7 @@ namespace ASBDDS.API.Migrations.DataDb
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.HasKey("InternalId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
@@ -86,6 +83,9 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.Property<int>("DefaultVlan")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp without time zone");
@@ -120,7 +120,7 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectDeviceLimit");
+                    b.ToTable("ProjectDeviceLimits");
                 });
 
             modelBuilder.Entity("ASBDDS.Shared.Models.Database.DataDb.Router", b =>
@@ -190,7 +190,7 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.HasIndex("SwitchId");
 
-                    b.ToTable("SwitchPort");
+                    b.ToTable("SwitchPorts");
                 });
 
             modelBuilder.Entity("ASBDDS.Shared.Models.Database.DataDb.Device", b =>

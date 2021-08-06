@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ASBDDS.API.Migrations.DataDb
 {
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,6 +12,7 @@ namespace ASBDDS.API.Migrations.DataDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
                     DefaultVlan = table.Column<int>(type: "integer", nullable: false),
                     AllowCustomBootloaders = table.Column<bool>(type: "boolean", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
@@ -36,7 +37,7 @@ namespace ASBDDS.API.Migrations.DataDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectDeviceLimit",
+                name: "ProjectDeviceLimits",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -48,9 +49,9 @@ namespace ASBDDS.API.Migrations.DataDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectDeviceLimit", x => x.Id);
+                    table.PrimaryKey("PK_ProjectDeviceLimits", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProjectDeviceLimit_Projects_ProjectId",
+                        name: "FK_ProjectDeviceLimits_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -81,7 +82,7 @@ namespace ASBDDS.API.Migrations.DataDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "SwitchPort",
+                name: "SwitchPorts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -91,9 +92,9 @@ namespace ASBDDS.API.Migrations.DataDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SwitchPort", x => x.Id);
+                    table.PrimaryKey("PK_SwitchPorts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SwitchPort_Switches_SwitchId",
+                        name: "FK_SwitchPorts_Switches_SwitchId",
                         column: x => x.SwitchId,
                         principalTable: "Switches",
                         principalColumn: "Id",
@@ -104,8 +105,8 @@ namespace ASBDDS.API.Migrations.DataDb
                 name: "Devices",
                 columns: table => new
                 {
-                    InternalId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Id = table.Column<Guid>(type: "uuid", nullable: true),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExternalId = table.Column<Guid>(type: "uuid", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: true),
                     StateEnum = table.Column<int>(type: "integer", nullable: false),
                     Model = table.Column<string>(type: "text", nullable: true),
@@ -113,14 +114,13 @@ namespace ASBDDS.API.Migrations.DataDb
                     Serial = table.Column<string>(type: "text", nullable: true),
                     MacAddress = table.Column<string>(type: "text", nullable: true),
                     SwitchPortId = table.Column<Guid>(type: "uuid", nullable: true),
-                    ProjectGuid = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Devices", x => x.InternalId);
+                    table.PrimaryKey("PK_Devices", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Devices_Projects_ProjectId",
                         column: x => x.ProjectId,
@@ -128,9 +128,9 @@ namespace ASBDDS.API.Migrations.DataDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Devices_SwitchPort_SwitchPortId",
+                        name: "FK_Devices_SwitchPorts_SwitchPortId",
                         column: x => x.SwitchPortId,
-                        principalTable: "SwitchPort",
+                        principalTable: "SwitchPorts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -146,8 +146,8 @@ namespace ASBDDS.API.Migrations.DataDb
                 column: "SwitchPortId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProjectDeviceLimit_ProjectId",
-                table: "ProjectDeviceLimit",
+                name: "IX_ProjectDeviceLimits_ProjectId",
+                table: "ProjectDeviceLimits",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
@@ -156,8 +156,8 @@ namespace ASBDDS.API.Migrations.DataDb
                 column: "RouterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SwitchPort_SwitchId",
-                table: "SwitchPort",
+                name: "IX_SwitchPorts_SwitchId",
+                table: "SwitchPorts",
                 column: "SwitchId");
         }
 
@@ -167,10 +167,10 @@ namespace ASBDDS.API.Migrations.DataDb
                 name: "Devices");
 
             migrationBuilder.DropTable(
-                name: "ProjectDeviceLimit");
+                name: "ProjectDeviceLimits");
 
             migrationBuilder.DropTable(
-                name: "SwitchPort");
+                name: "SwitchPorts");
 
             migrationBuilder.DropTable(
                 name: "Projects");
