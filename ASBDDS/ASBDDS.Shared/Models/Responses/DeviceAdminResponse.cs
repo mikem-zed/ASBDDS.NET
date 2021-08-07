@@ -14,6 +14,7 @@ namespace ASBDDS.Shared.Models.Responses
         public string Serial { get; set; }
         public string MacAddress { get; set; }
         public Guid SwitchPortId { get; set; }
+        public string State { get; set; }
 
         public DeviceAdminResponse(Device _device)
         {
@@ -24,6 +25,7 @@ namespace ASBDDS.Shared.Models.Responses
             Serial = _device.Serial;
             MacAddress = _device.MacAddress;
             SwitchPortId = _device.SwitchPort.Id;
+            State = _device.StateEnum.ToString().ToLower();
         }
 
         public DeviceAdminResponse() { }

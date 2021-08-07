@@ -12,7 +12,7 @@
         /// <summary>
         /// Creating state
         /// </summary>
-        CREATING,
+        CREATING = 1,
         /// <summary>
         /// Provisioning state
         /// </summary>

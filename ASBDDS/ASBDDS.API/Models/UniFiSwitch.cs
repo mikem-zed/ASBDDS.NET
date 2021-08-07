@@ -1,0 +1,108 @@
+﻿using ASBDDS.API.Interfaces;
+using ASBDDS.Shared.Models.Database.DataDb;
+using Renci.SshNet;
+using System;
+using System.IO;
+using System.Threading;
+
+namespace ASBDDS.API.Models
+{
+    public enum UniFiSwitchPOEPortOpmode
+    {
+        SHUTDOWN,
+        PASSIVE24V,
+        AUTO
+    }
+
+    public class UniFiSwitch : IControlPOESwitchPort
+    {
+        public ConnectionInfo ConnNfo = new ConnectionInfo("10.141.3.110", 22, "root",
+            new AuthenticationMethod[]{
+
+                // Pasword based Authentication
+                new PasswordAuthenticationMethod("root","ismail"),
+
+
+            }
+        );
+
+        //public static string SendCommand(string cmd, ShellStream sh)
+        //{
+        //    StreamReader reader = null;
+        //    try
+        //    {
+        //        reader = new StreamReader(sh);
+        //        StreamWriter writer = new StreamWriter(sh);
+        //        writer.AutoFlush = true;
+        //        writer.WriteLine(cmd);
+        //        while (sh.Length == 0)
+        //        {
+        //            Thread.Sleep(500);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("exception: " + ex.ToString());
+        //    }
+        //    return reader.ReadToEnd();
+        //}
+
+        private void SendSshCommand(SshClient client, string commandsStr)
+        {
+            client.Connect();
+            ShellStream shell = client.CreateShellStream("master", 80, 24, 800, 600, 1024);
+            //var reader = new StreamReader(shell);
+            var writer = new StreamWriter(shell);
+            writer.AutoFlush = true;
+            foreach (var commandStr in commandsStr.Split(";", StringSplitOptions.RemoveEmptyEntries))
+            {
+                writer.WriteLine(commandStr);
+                while (shell.Length == 0)
+                {
+                    Thread.Sleep(500);
+                }
+                //Console.WriteLine(reader.ReadToEnd(););
+            }
+            shell.Close();
+            client.Disconnect();
+        }
+
+        private void SetupPoePortOpmode(SshClient client, SwitchPort port, UniFiSwitchPOEPortOpmode opmode)
+        {
+            SendSshCommand(client, "telnet localhost; enable; config; interface " + port.Number + "; poe opmode " + opmode.ToString().ToLower() + "; exit; exit; exit; exit; exit;");
+        }
+
+        public void EnablePOEPort(SwitchPort port)
+        {
+            if (port.Switch.AuthMethod == SwitchAuthMethod.SSH_USER_PASS)
+            {
+                ConnectionInfo ConnNfo = new ConnectionInfo(port.Switch.Ip, 22, port.Switch.Username,
+                    new AuthenticationMethod[]{
+                        // Pasword based Authentication
+                        new PasswordAuthenticationMethod(port.Switch.Username, port.Switch.Password),
+                    }
+                );
+                using (var client = new SshClient(ConnNfo))
+                {
+                    SetupPoePortOpmode(client, port, UniFiSwitchPOEPortOpmode.AUTO);
+                }
+            }
+            else
+                throw new NotImplementedException("AuthMethod is not implemented");
+        }
+
+        public void DisablePOEPort(SwitchPort port)
+        {
+            if (port.Switch.AuthMethod == SwitchAuthMethod.SSH_USER_PASS)
+            {
+                using (var client = new SshClient(port.Switch.Ip, port.Switch.Username, port.Switch.Password))
+                {
+
+                    SetupPoePortOpmode(client, port, UniFiSwitchPOEPortOpmode.SHUTDOWN);
+                }
+            }
+            else
+                throw new NotImplementedException("AuthMethod is not implemented");
+        }
+    }
+}

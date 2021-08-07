@@ -103,7 +103,8 @@ namespace ASBDDS.API.Controllers
                 _switch.AccessProtocol = switchReq.AccessProtocol;
                 _switch.AuthMethod = switchReq.AuthMethod;
                 _switch.Username = switchReq.Username;
-                _switch.Password = switchReq.Password;
+                if (switchReq.Password != "**********" && !String.IsNullOrEmpty(switchReq.Password))
+                    _switch.Password = switchReq.Password;
                 _switch.Model = switchReq.Model;
                 _switch.Manufacturer = switchReq.Manufacturer;
 

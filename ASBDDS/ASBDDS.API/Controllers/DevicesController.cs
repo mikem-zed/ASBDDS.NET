@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.Shared.Models.Responses;
 using ASBDDS.Shared.Models.Requests;
+using ASBDDS.API.Models;
+using System.Threading;
 
 namespace ASBDDS.API.Controllers
 {
@@ -170,13 +172,79 @@ namespace ASBDDS.API.Controllers
                     resp.Data = new DeviceAdminResponse(device);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 resp.Status.Code = 1;
                 resp.Status.Message = e.Message;
             }
 
             return resp;
+        }
+
+        [HttpPost("api/admin/devices/{id}/poweroff")]
+        public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PowerOffDevice(Guid id)
+        {
+            return await AdminPowerSwitchDevice(id, false);
+        }
+
+        [HttpPost("api/admin/devices/{id}/poweron")]
+        public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PowerOnDevice(Guid id)
+        {
+            return await AdminPowerSwitchDevice(id, true);
+        }
+
+        [HttpPost("api/admin/devices/{id}/reboot")]
+        public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> RebootDevice(Guid id)
+        {
+            await AdminPowerSwitchDevice(id, false);
+            Thread.Sleep(1000);
+            return await AdminPowerSwitchDevice(id, true);
+        }
+
+        private async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> AdminPowerSwitchDevice(Guid id, bool enable)
+        {
+            var resp = new ApiResponse<DeviceAdminResponse>();
+            try
+            {
+                var device = await _context.Devices.Where(d => d.Id == id).Include(d => d.SwitchPort).ThenInclude(s => s.Switch).FirstOrDefaultAsync();
+                if (device == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Device not found";
+                    return resp;
+                }
+
+                DeviceSwitchPower(device, enable);
+
+                if (enable)
+                    device.StateEnum = DeviceState.POWERON;
+                else
+                    device.StateEnum = DeviceState.POWEROFF;
+
+                _context.Entry(device).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+                resp.Data = new DeviceAdminResponse(device);
+            }
+            catch (Exception e)
+            {
+                resp.Status.Code = 1;
+                resp.Status.Message = e.Message;
+            }
+
+            return resp;
+        }
+
+        private void DeviceSwitchPower(Device device, bool enable)
+        {
+            if (device?.SwitchPort?.Switch != null)
+            {
+                var unifiSwitch = new UniFiSwitch();
+                if (enable)
+                    unifiSwitch.EnablePOEPort(device.SwitchPort);
+                else
+                    unifiSwitch.DisablePOEPort(device.SwitchPort);
+            }
         }
 
         #endregion
