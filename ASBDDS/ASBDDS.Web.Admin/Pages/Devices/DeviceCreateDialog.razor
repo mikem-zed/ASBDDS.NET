@@ -1,0 +1,76 @@
+﻿@using ASBDDS.Shared.Models.Requests
+@using ASBDDS.Shared.Models.Responses
+@using ASBDDS.Shared.Models.Database.DataDb
+@using Newtonsoft.Json
+@using ASBDDS.Shared.Helpers
+@using System.Text
+@inject HttpClient httpClient
+
+<MudDialog DisableSidePadding="true">
+    <DialogContent>
+        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudDivider Class="mt-2 mb-1" />
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.BaseModel" Label="Base Model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.Serial" Label="Serial" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.MacAddress" Label="Mac Address" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.SwitchPortId" Label="Switch Port ID" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Create">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private DeviceAdminPostRequest deviceAdminPostRequest;
+    private DeviceAdminResponse deviceAdminResponse;
+    private Task<HttpResponseMessage> httpResp;
+
+    void Cancel() => MudDialog.Cancel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        deviceAdminPostRequest = new DeviceAdminPostRequest();
+    }
+
+    private async void CreateCallback()
+    {
+        var res = httpResp.Result;
+        var bodyStr = await res.Content.ReadAsStringAsync();
+        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceAdminPostRequest>>(bodyStr);
+        if (res.IsSuccessStatusCode && respBodyObj.Status.Code == 0)
+        {
+
+        }
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Create()
+    {
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "api/admin/devices");
+        var json = JsonConvert.SerializeObject(deviceAdminPostRequest);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        httpRequest.Content = data;
+
+        httpResp = httpClient.SendAsync(httpRequest);
+        httpResp.ContinueWith(p => CreateCallback());
+    }
+}

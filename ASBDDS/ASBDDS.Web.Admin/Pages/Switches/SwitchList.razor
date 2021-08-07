@@ -143,11 +143,18 @@
 
     private async void DeleteSwitch(SwitchAdminResponse @switch)
     {
-        var httpResponse = await httpClient.DeleteAsync("api/admin/switches/" + @switch.Id);
+        var parameters = new DialogParameters();
+        parameters.Add("EntityName", "switch");
 
-        if (httpResponse.IsSuccessStatusCode)
+        var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
+
+        if (!result.Cancelled)
         {
-            await UpdateTableData(true);
+            var httpResponse = await httpClient.DeleteAsync("api/admin/switches/" + @switch.Id);
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                await UpdateTableData(true);
+            }
         }
     }
 

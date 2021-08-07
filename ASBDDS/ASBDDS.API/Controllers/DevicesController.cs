@@ -82,12 +82,21 @@ namespace ASBDDS.API.Controllers
             try
             {
                 var device = await _context.Devices.Where(d => d.Id == id).Include(d => d.SwitchPort).ThenInclude(d => d.Switch).FirstOrDefaultAsync();
+
+                if(device == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Device not found";
+                    return resp;
+                }
+
                 var switchPort = await _context.SwitchPorts.FindAsync(deviceReq.SwitchPortId);
 
                 if(switchPort == null)
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Switch port not found";
+                    return resp;
                 }
                 else
                 {

@@ -30,6 +30,8 @@ namespace ASBDDS.Shared.Models.Responses
         public bool AllowCustomBootloaders { get; set; }
         public List<DeviceLimitResponse> DeviceLimits { get; set; }
 
+        public ProjectAdminResponse() { }
+
         public ProjectAdminResponse(Project project)
         {
             Id = project.Id;

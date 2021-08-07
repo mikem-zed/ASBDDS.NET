@@ -88,8 +88,17 @@ namespace ASBDDS.API.Controllers
                 project.DefaultVlan = projectReq.DefaultVlan;
                 project.AllowCustomBootloaders = projectReq.AllowCustomBootloaders;
 
-                //project.ProjectDeviceLimits.
-
+                project.ProjectDeviceLimits.Clear();
+                foreach(var deviceLimit in projectReq.ProjectDeviceLimits)
+                {
+                    var _deviceLimit = new ProjectDeviceLimit()
+                    {
+                        Count = deviceLimit.Count,
+                        Model = deviceLimit.Model,
+                        Project = project
+                    };
+                    project.ProjectDeviceLimits.Add(_deviceLimit);
+                }
 
                 _context.Entry(project).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
@@ -126,7 +135,6 @@ namespace ASBDDS.API.Controllers
                         Model = deviceLimit.Model,
                         Project = project
                     };
-                    //_context.ProjectDeviceLimits.Add(_deviceLimit);
                     project.ProjectDeviceLimits.Add(_deviceLimit);
                 }
 

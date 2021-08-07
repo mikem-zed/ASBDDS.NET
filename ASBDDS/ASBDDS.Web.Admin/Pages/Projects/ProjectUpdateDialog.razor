@@ -1,0 +1,97 @@
+﻿@using ASBDDS.Shared.Models.Requests
+@using ASBDDS.Shared.Models.Responses
+@using ASBDDS.Shared.Models.Database.DataDb
+@using Newtonsoft.Json
+@using ASBDDS.Shared.Helpers
+@using System.Text
+@inject HttpClient httpClient
+
+<MudDialog DisableSidePadding="true">
+    <DialogContent>
+        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.AllowCustomBootloaders" Label="Allow Custom Boot Loaders" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudDivider Class="mt-2 mb-1" />
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.DefaultVlan" Label="Default Vlan" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudDivider Class="mt-2 mb-1"> Ports </MudDivider>
+
+            @foreach (var devLimit in projectAdminPutRequest.ProjectDeviceLimits)
+            {
+                <MudItem xs="12" Class="d-flex flex-row">
+                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Model" Label="Device model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Count" Label="Device count" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeleteDevice(devLimit))" />
+                </MudItem>
+            }
+            <MudIconButton Class="d-flex flex-row my-n1" Icon="@Icons.Material.Rounded.Add" OnClick="@AddPort" Color="Color.Success" aria-label="add"></MudIconButton>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Create">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public ProjectAdminResponse _project { get; set; } = new ProjectAdminResponse();
+
+    private ProjectAdminPutRequest projectAdminPutRequest;
+    private ProjectAdminResponse projectAdminResponse;
+    private Task<HttpResponseMessage> httpResp;
+
+    void Cancel() => MudDialog.Cancel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        projectAdminPutRequest = new ProjectAdminPutRequest();
+        projectAdminPutRequest.ProjectDeviceLimits = new List<DeviceLimitResponse>();
+
+        projectAdminPutRequest.Name = _project.Name;
+        projectAdminPutRequest.AllowCustomBootloaders = _project.AllowCustomBootloaders;
+        projectAdminPutRequest.DefaultVlan = _project.DefaultVlan;
+        projectAdminPutRequest.ProjectDeviceLimits = _project.DeviceLimits;
+
+    }
+
+    private void AddPort()
+    {
+        projectAdminPutRequest.ProjectDeviceLimits.Add(new DeviceLimitResponse());
+    }
+
+    private void DeleteDevice(DeviceLimitResponse devLimit)
+    {
+        projectAdminPutRequest.ProjectDeviceLimits.Remove(devLimit);
+    }
+
+    private async void CreateCallback()
+    {
+        var res = httpResp.Result;
+        var bodyStr = await res.Content.ReadAsStringAsync();
+        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<ProjectAdminPutRequest>>(bodyStr);
+        if (res.IsSuccessStatusCode && respBodyObj.Status.Code == 0)
+        {
+
+        }
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Create()
+    {
+        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/admin/projects/" + _project.Id);
+        var json = JsonConvert.SerializeObject(projectAdminPutRequest);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        httpRequest.Content = data;
+
+        httpResp = httpClient.SendAsync(httpRequest);
+        httpResp.ContinueWith(p => CreateCallback());
+    }
+}
