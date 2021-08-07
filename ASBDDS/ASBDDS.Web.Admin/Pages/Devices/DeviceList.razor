@@ -4,7 +4,7 @@
 @inject HttpClient httpClient
 @inject IDialogService DialogService
 
-<MudTable Items="@Devices" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<DeviceAdminResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+<MudTable Items="@Devices" Dense="@dense" Hover="@hover" Loading="@_loading" LoadingProgressColor="Color.Info" Bordered="@bordered" Striped="@striped" Filter="new Func<DeviceAdminResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Devices List</MudText>
         <MudIconButton Class="float-left" Icon="@Icons.Material.Rounded.Add" Color="Color.Success" OnClick="@ShowCreateDialog" aria-label="add"></MudIconButton>
@@ -13,6 +13,8 @@
         <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>State</MudTh>
         <MudTh>Id</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Manufacturer</MudTh>
@@ -20,9 +22,17 @@
         <MudTh>Serial</MudTh>
         <MudTh>Mac Address</MudTh>
         <MudTh>Switch Port Id</MudTh>
-        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
+        <MudTd Style="white-space: nowrap; width: 1%;" DataLabel="Options">
+            <MudMenu Label="Actions" Size="Size.Small" Dense="true" Direction="Direction.Start">
+                <MudMenuItem OnClick="@(() => ShowUpdateDialog(context))">Edit</MudMenuItem>
+                <MudMenuItem OnClick="@(() => DeleteDevice(context))">Delete</MudMenuItem>
+                <MudMenuItem OnClick="@(() => PowerOffDevice(context))">Power off</MudMenuItem>
+                <MudMenuItem OnClick="@(() => PowerOnDevice(context))">Power on</MudMenuItem>
+            </MudMenu>
+        </MudTd>
+        <MudTd DataLabel="State">@context.State</MudTd>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Manufacturer">@context.Manufacturer</MudTd>
@@ -30,12 +40,6 @@
         <MudTd DataLabel="Serial">@context.Serial</MudTd>
         <MudTd DataLabel="MacAddress">@context.MacAddress</MudTd>
         <MudTd DataLabel="SwitchPortId">@context.SwitchPortId</MudTd>
-        <MudTd Style="white-space: nowrap; width: 1%;" DataLabel="Options">
-            <MudMenu Label="Options" Size="Size.Small" Dense="true" FullWidth="true" Direction="Direction.Start">
-                <MudMenuItem OnClick="@(() => ShowUpdateDialog(context))">Edit</MudMenuItem>
-                <MudMenuItem OnClick="@(() => DeleteDevice(context))">Delete</MudMenuItem>
-            </MudMenu>
-        </MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
@@ -65,13 +69,15 @@
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-        _loading = true;
         var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<DeviceAdminResponse>>>("api/admin/devices/");
 
         Devices = responseBody.Data;
 
         _loading = false;
-        if (StateChanged) StateHasChanged();
+
+        if (StateChanged)
+            StateHasChanged();
+
         return 0;
     }
 
@@ -81,6 +87,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -92,6 +99,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -105,11 +113,32 @@
 
         if (!result.Cancelled)
         {
+            _loading = true;
             var httpResponse = await httpClient.DeleteAsync("api/admin/devices/" + device.Id);
             if (httpResponse.IsSuccessStatusCode)
             {
                 await UpdateTableData(true);
             }
+        }
+    }
+
+    private async void PowerOffDevice(DeviceAdminResponse device)
+    {
+        _loading = true;
+        var httpResponse = await httpClient.PostAsync("api/admin/devices/" + device.Id + "/poweroff", null);
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            await UpdateTableData(true);
+        }
+    }
+
+    private async void PowerOnDevice(DeviceAdminResponse device)
+    {
+        _loading = true;
+        var httpResponse = await httpClient.PostAsync("api/admin/devices/" + device.Id + "/poweron", null);
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            await UpdateTableData(true);
         }
     }
 
