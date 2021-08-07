@@ -58,9 +58,6 @@ namespace ASBDDS.API.Controllers
 
                     BootloaderSetupHelper.RemoveDeviceDirectory(device);
                     device.StateEnum = DeviceState.POWEROFF;
-                    device.Project = null;
-                    device.Name = null;
-                    device.ExternalId = null;
                 }
                 else
                 {

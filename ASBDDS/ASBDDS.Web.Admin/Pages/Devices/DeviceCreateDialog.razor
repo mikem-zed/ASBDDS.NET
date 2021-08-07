@@ -12,13 +12,30 @@
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-            </MudItem>
             <MudDivider Class="mt-2 mb-1" />
-            <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.BaseModel" Label="Base Model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-            </MudItem>
+            <MudSelect Class="my-2" @bind-Value="@deviceAdminPostRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @{
+                    var deviceHelper = new DeviceHelper();
+                    foreach (var manufacturer in deviceHelper.GetManufacturers())
+                    {
+                        <MudSelectItem Value="@deviceHelper.GetManufacturer(manufacturer)"></MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudSelect Class="my-2" @bind-Value="@deviceAdminPostRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @{
+                    if (deviceAdminPostRequest.Manufacturer != "")
+                    {
+                        var deviceHelper = new DeviceHelper();
+                        var models = deviceHelper.GetModels(deviceAdminPostRequest.Manufacturer);
+                        foreach (var model in models)
+                        {
+                            var modelName = deviceHelper.GetModel(model);
+                            <MudSelectItem Value="@modelName"></MudSelectItem>
+                        }
+                    }
+                }
+            </MudSelect>
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.Serial" Label="Serial" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
@@ -26,9 +43,9 @@
                 <MudTextField Class="my-2" @bind-Value="@deviceAdminPostRequest.MacAddress" Label="Mac Address" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudSelect Class="my-2" @bind-Value="@deviceAdminPostRequest.SwitchPortId" Label="Port type" Variant="Variant.Outlined" Margin="Margin.Dense">
-                @foreach(var _switch in switches)
+                @foreach (var _switch in switches)
                 {
-                    foreach(var port in _switch.Ports)
+                    foreach (var port in _switch.Ports)
                     {
                         var portFullName = _switch.Name + " (" + _switch.Model + " / " + port.Number + ")";
                         <MudSelectItem Value="@port.Id">@portFullName</MudSelectItem>

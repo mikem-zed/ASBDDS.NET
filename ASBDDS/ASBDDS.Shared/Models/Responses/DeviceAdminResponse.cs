@@ -10,7 +10,7 @@ namespace ASBDDS.Shared.Models.Responses
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Model { get; set; }
-        public string BaseModel { get; set; }
+        public string Manufacturer { get; set; }
         public string Serial { get; set; }
         public string MacAddress { get; set; }
         public Guid SwitchPortId { get; set; }
@@ -21,7 +21,7 @@ namespace ASBDDS.Shared.Models.Responses
             Id = _device.Id;
             Name = _device.Name;
             Model = _device.Model;
-            BaseModel = _device.BaseModel;
+            Manufacturer = _device.Manufacturer;
             Serial = _device.Serial;
             MacAddress = _device.MacAddress;
             SwitchPortId = _device.SwitchPort.Id;

@@ -15,8 +15,8 @@
     <HeaderContent>
         <MudTh>Id</MudTh>
         <MudTh>Name</MudTh>
+        <MudTh>Manufacturer</MudTh>
         <MudTh>Model</MudTh>
-        <MudTh>Base Model</MudTh>
         <MudTh>Serial</MudTh>
         <MudTh>Mac Address</MudTh>
         <MudTh>Switch Port Id</MudTh>
@@ -25,8 +25,8 @@
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Manufacturer">@context.Manufacturer</MudTd>
         <MudTd DataLabel="Model">@context.Model</MudTd>
-        <MudTd DataLabel="BaseModel">@context.BaseModel</MudTd>
         <MudTd DataLabel="Serial">@context.Serial</MudTd>
         <MudTd DataLabel="MacAddress">@context.MacAddress</MudTd>
         <MudTd DataLabel="SwitchPortId">@context.SwitchPortId</MudTd>
@@ -125,7 +125,7 @@
             return true;
         if (device.Model.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (device.BaseModel.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (device.Manufacturer.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (device.Serial.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;

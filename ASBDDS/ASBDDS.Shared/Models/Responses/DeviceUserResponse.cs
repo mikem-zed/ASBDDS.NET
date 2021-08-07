@@ -18,13 +18,11 @@ namespace ASBDDS.Shared.Models.Responses
 
         public DeviceUserResponse(Device _device)
         {
-            Id = (Guid)_device.ExternalId;
+
             Name = _device.Name;
             Model = _device.Model;
-            BaseModel = _device.BaseModel;
             Serial = _device.Serial;
             MacAddress = _device.MacAddress;
-            ProjectId = _device.Project.Id;
             State = _device.StateEnum.ToString();
         }
     }

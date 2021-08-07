@@ -1,4 +1,5 @@
-﻿using ASBDDS.Shared.Models.Database.DataDb;
+﻿using ASBDDS.Shared.Helpers;
+using ASBDDS.Shared.Models.Database.DataDb;
 using System;
 using System.IO;
 
@@ -29,14 +30,16 @@ namespace ASBDDS.API.Models.Utils
 
         public static void MakeFirmware(Device device)
         {
-            var firmwarePath = Path.Combine(ImagesDirectory, device.BaseModel, "firmware");
+            var deviceHelper = new DeviceHelper();
+            var firmwarePath = Path.Combine(ImagesDirectory, deviceHelper.GetSystemBaseModel(device.Model), "firmware");
             var outPath = Path.Combine(TftpDirectory, device.Serial);
             CopyAll(new DirectoryInfo(firmwarePath), new DirectoryInfo(outPath));
         }
 
         public static void MakeUboot(Device device, string variant = "normal")
         {
-            var ubootPath = Path.Combine(ImagesDirectory, device.BaseModel, "u-boot", variant);
+            var deviceHelper = new DeviceHelper();
+            var ubootPath = Path.Combine(ImagesDirectory, deviceHelper.GetSystemBaseModel(device.Model), "u-boot", variant);
             var outPath = Path.Combine(TftpDirectory, device.Serial);
             CopyAll(new DirectoryInfo(ubootPath), new DirectoryInfo(outPath));
         }
