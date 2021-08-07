@@ -9,6 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
+using ASBDDS.API.Servers.DHCP;
+using System.Net;
+using System;
+using ASBDDS.API.Models.Utils;
 
 namespace ASBDDS.NET
 {
@@ -18,19 +22,23 @@ namespace ASBDDS.NET
         {
             Configuration = configuration;
 
-            TftpServer = new TFTPServer("tftp_root");
-            TftpServer.Start();
+            TFTPServer = new TFTPServer();
+            TFTPServer.Start();
+            DHCPServer = new DHCPServer(Configuration.GetValue<string>("Networking:IP"));
+            DHCPServer.Start();
         }
 
         public IConfiguration Configuration { get; }
-        public TFTPServer TftpServer { get; }
+        public TFTPServer TFTPServer { get; }
+        public DHCPServer DHCPServer { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DataDbConnection"),
                     x => x.MigrationsAssembly("ASBDDS.API")));
-            services.AddTransient(provider => { return TftpServer; });
+            services.AddTransient(provider => { return TFTPServer; });
+            services.AddTransient(provider => { return DHCPServer; });
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSwaggerGen(c =>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASBDDS.API.Models.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,13 +11,12 @@ namespace ASBDDS.API.Servers.TFTP
 {
     public class TFTPServer
     {
-        public string RootDirectory = Environment.CurrentDirectory;
         public string TftpDirectory { get; }
         private TftpServer server { get; set; }
-        public TFTPServer(string tftp_dir)
+        public TFTPServer()
         {
             server = new TftpServer();
-            TftpDirectory = Path.Combine(RootDirectory, tftp_dir);
+            TftpDirectory = BootloaderSetupHelper.TftpDirectory;
             CreateTftpRootPath();
         }
 
@@ -58,7 +58,7 @@ namespace ASBDDS.API.Servers.TFTP
             FileInfo file = new FileInfo(path);
 
             //Is the file within the server directory?
-            if (!file.FullName.StartsWith(RootDirectory, StringComparison.InvariantCultureIgnoreCase))
+            if (!file.FullName.StartsWith(Environment.CurrentDirectory, StringComparison.InvariantCultureIgnoreCase))
             {
                 CancelTransfer(transfer, TftpErrorPacket.AccessViolation);
             }

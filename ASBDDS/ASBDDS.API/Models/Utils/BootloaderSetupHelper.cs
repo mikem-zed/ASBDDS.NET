@@ -2,9 +2,9 @@
 using System;
 using System.IO;
 
-namespace ASBDDS.API.Servers.TFTP
+namespace ASBDDS.API.Models.Utils
 {
-    public static class TFTPBootloaderSetupHelper
+    public static class BootloaderSetupHelper
     {
         public static string TftpDirectory = Path.Combine(Environment.CurrentDirectory, "tftp_root");
         public static string ImagesDirectory = Path.Combine(Environment.CurrentDirectory, "images");

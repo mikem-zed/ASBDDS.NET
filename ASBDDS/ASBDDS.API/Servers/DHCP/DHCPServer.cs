@@ -1,140 +1,75 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
+using System.Text;
+using ASBDDS.API.Models.Utils;
+using GitHub.JPMikkers.DHCP;
 
-using Singulink.Net.Dhcp;
+using DHCPJPMikkers = GitHub.JPMikkers.DHCP;
 
 namespace ASBDDS.API.Servers.DHCP
 {
-    //public class DHCPServer : Singulink.Net.Dhcp.DhcpServer
-    //{
-    //    private static readonly IPAddress SubnetMask = IPAddress.Parse("255.255.0.0");
+    public class DHCPServer : DHCPJPMikkers.DHCPServer
+    {
+        public IPAddress BindAddress { get; set; }
+        public string HTTPBootFile { get; set; }
 
-    //    // Your implementation of mappings between IP addresses and MAC addresses - could be
-    //    // an in-memory dictionary, database lookup, or some other custom mechanism of 
-    //    // mapping values:
-    //    private IPAddressMap _clientMap = new IPAddressMap();
+        public DHCPServer(string address) : this(address, "255.255.255.0", 67) { }
+        public DHCPServer(string address, string mask, string poolStart, string poolEnd, int port) : this(address, mask, port) 
+        {
+            this.PoolStart = IPAddress.Parse(poolStart);
+            this.PoolEnd = IPAddress.Parse(poolEnd);
+        }
+        public DHCPServer(string address, string mask, int port) : base(null)
+        {
+            BindAddress = IPAddress.Parse(address);
 
-    //    private readonly object _syncRoot = new object();
+            var net = new IPSegment(BindAddress.ToString(), mask);
 
-    //    public event Action<PhysicalAddress> DiscoverReceived = delegate { };
-    //    public event Action Disconnected = delegate { };
+            this.EndPoint = new IPEndPoint(BindAddress, port);
+            this.SubnetMask = IPAddress.Parse(mask);
+            this.PoolStart = net.Hosts().First().ToIpAddress();
+            this.PoolEnd = net.Hosts().Last().ToIpAddress();
+            this.LeaseTime = Utils.InfiniteTimeSpan;
+            this.OfferExpirationTime = TimeSpan.FromSeconds(30);
 
-    //    public DHCPServer(IPAddress listeningAddress) : base(listeningAddress, SubnetMask) { }
+            this.MinimumPacketSize = 576;
 
-    //    public override void Start()
-    //    {
-    //        base.Start();
-    //    }
 
-    //    public override void Stop()
-    //    {
-    //        base.Stop();
-    //    }
+            this.OnStatusChange += Dhcpd_OnStatusChange;
+            this.OnTrace += Dhcpd_OnTrace;
 
-    //    public PhysicalAddress? GetMacAddress(IPAddress ip)
-    //    {
-    //        lock (_syncRoot)
-    //        {
-    //            if (_clientMap.TryGetValue(ip, out PhysicalAddress mac))
-    //                return mac;
-    //        }
+            Options.Add(new OptionItem(mode: OptionMode.Force,
+                option: new DHCPOptionRouter()
+                {
+                    IPAddresses = new[] { BindAddress }
+                }));
 
-    //        return null;
-    //    }
+            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
+               option: new DHCPJPMikkers.DHCPOptionServerIdentifier(BindAddress)));
 
-    //    protected override DhcpDiscoverResult? OnDiscoverReceived(DhcpMessage message)
-    //    {
-    //        IPAddress ip;
-    //        PhysicalAddress mac = message.ClientMacAddress;
+            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
+              option: new DHCPJPMikkers.DHCPOptionTFTPServerName(BindAddress.ToString())));
 
-    //        lock (_syncRoot)
-    //        {
-    //            if (!_clientMap.TryGetValue(mac, out ip))
-    //            {
-    //                try
-    //                {
-    //                    ip = _clientMap.GetNextAvailableIPAddress();
-    //                }
-    //                catch
-    //                {
-    //                    //_log.Error("No more IP addresses available.");
-    //                    return null;
-    //                }
+            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
+                 option: new DHCPJPMikkers.DHCPOptionHostName("ASBDDS")));
 
-    //                _clientMap[mac] = ip;
-    //            }
-    //        }
-
-    //        DiscoverReceived.Invoke(mac);
-    //        return DhcpDiscoverResult.CreateOffer(message, ip, uint.MaxValue);
-    //    }
-
-    //    protected override DhcpRequestResult? OnRequestReceived(DhcpMessage message)
-    //    {
-    //        //_log.Debug(message);
-
-    //        var ip = message.Options.RequestedIPAddress;
-    //        var mac = message.ClientMacAddress;
-
-    //        if (ip == null)
-    //            return DhcpRequestResult.CreateNoAcknowledgement(message, "No requested IP address provided");
-
-    //        lock (_syncRoot)
-    //        {
-    //            if (!_clientMap.Contains(mac, ip))
-    //                return DhcpRequestResult.CreateNoAcknowledgement(message, "No matching offer found.");
-    //        }
-
-    //        return DhcpRequestResult.CreateAcknowledgement(message, ip, uint.MaxValue);
-    //    }
-
-    //    protected override void OnReleaseReceived(DhcpMessage message)
-    //    {
-    //        //_log.Debug(message);
-    //    }
-
-    //    protected override void OnDeclineReceived(DhcpMessage message)
-    //    {
-    //        //_log.Debug(message);
-
-    //        var ip = message.Options.RequestedIPAddress;
-    //        var mac = message.ClientMacAddress;
-
-    //        if (ip != null)
-    //        {
-    //            //_log.DebugFormat("Purge requested for client record: {0} / {1}.", mac, ip);
-
-    //            lock (_syncRoot)
-    //            {
-    //                if (_clientMap.Remove(mac, ip))
-    //                {
-    //                    //_log.DebugFormat("Purged client record: {0} / {1}.", mac, ip);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    protected override void OnInformReceived(DhcpMessage message)
-    //    {
-    //        //_log.Debug(message);
-    //    }
-
-    //    protected override void OnResponseSent(DhcpMessage message)
-    //    {
-    //        //_log.Debug(message);
-    //    }
-
-    //    protected override void OnMessageError(Exception ex)
-    //    {
-    //        //_log.Error("Bad message recieved.", ex);
-    //    }
-
-    //    protected override void OnSocketError(SocketException ex)
-    //    {
-    //        //_log.Error("Socket error.", ex);
-    //        Disconnected.Invoke();
-    //    }
-    //}
+        }
+        private void Dhcpd_OnStatusChange(object sender, DHCPJPMikkers.DHCPStopEventArgs e)
+        {
+            Trace.WriteLine(e?.Reason);
+            Trace.Flush();
+        }
+        private void Dhcpd_OnTrace(object sender, DHCPJPMikkers.DHCPTraceEventArgs e)
+        {
+            Trace.WriteLine(e?.Message);
+            Trace.Flush();
+        }
+        public new void Start()
+        {
+            base.Start();
+        }
+    }
 }

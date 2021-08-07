@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.Web.Client", "ASBDDS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASBDDS.Web.Admin", "ASBDDS.Web.Admin\ASBDDS.Web.Admin.csproj", "{22ED3650-7821-4D1D-8B27-821C7A4BE293}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DHCPServer", "..\DHCPServer\DHCPServer\Library\DHCPServer.csproj", "{87DA90C1-1AFD-40E5-8679-CA52F5C46A57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,12 +50,17 @@ Global
 		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22ED3650-7821-4D1D-8B27-821C7A4BE293}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87DA90C1-1AFD-40E5-8679-CA52F5C46A57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DA90C1-1AFD-40E5-8679-CA52F5C46A57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DA90C1-1AFD-40E5-8679-CA52F5C46A57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA90C1-1AFD-40E5-8679-CA52F5C46A57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2FCA4316-80EC-4852-B0D4-CB679E950565} = {1475A0EC-7C98-4457-BBBA-70192E4A6C2F}
+		{87DA90C1-1AFD-40E5-8679-CA52F5C46A57} = {1475A0EC-7C98-4457-BBBA-70192E4A6C2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F56D7A4-CA2A-487B-84F8-2DE37CE5A30C}
