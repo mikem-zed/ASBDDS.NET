@@ -1,35 +1,78 @@
 ﻿@using ASBDDS.Shared.Models.Requests
 @using ASBDDS.Shared.Models.Responses
 @using ASBDDS.Shared.Models.Database.DataDb
+@using ASBDDS.Shared.Helpers
 @using Newtonsoft.Json
 @using System.Text
 @inject HttpClient httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
-        <MudContainer xs="12" Class="mx-auto pa-4 justify-center my-4 mud-text-align-center" Style="max-height: 300px; width: 400px; overflow-y: scroll">
+        <MudContainer xs="12" Class="mx-auto pa-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPutRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @{
+                    var switchHelper = new SwitchHelper();
+                    foreach (var manufacturer in switchHelper.GetManufacturers())
+                    {
+                        <MudSelectItem Value="@switchHelper.GetManufacturer(manufacturer)"></MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPutRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @{
+                    if (switchAdminPutRequest.Manufacturer != "")
+                    {
+                        var switchHelper = new SwitchHelper();
+                        var models = switchHelper.GetModels(switchAdminPutRequest.Manufacturer);
+                        foreach (var model in models)
+                        {
+                            var modelName = switchHelper.GetModel(model);
+                            <MudSelectItem Value="@modelName"></MudSelectItem>
+                        }
+                    }
+                }
+            </MudSelect>
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPutRequest.Serial" Label="Serial" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
+            <MudDivider Class="mt-2 mb-1" />
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPutRequest.Ip" Label="IP" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPutRequest.AccessProtocol" Label="Access protocol" Variant="Variant.Outlined" Margin="Margin.Dense">
+                <MudSelectItem Value="@SwitchAccessProtocol.SSH"></MudSelectItem>
+                <MudSelectItem Value="@SwitchAccessProtocol.Telnet"></MudSelectItem>
+            </MudSelect>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPutRequest.AuthMethod" Label="Auth. Method" Variant="Variant.Outlined" Margin="Margin.Dense">
+                <MudSelectItem Value="@SwitchAuthMethod.SSH_USER_PASS">Username and password</MudSelectItem>
+            </MudSelect>
+            @{
+                if (switchAdminPutRequest.AuthMethod == SwitchAuthMethod.SSH_USER_PASS)
+                {
+                    <MudItem xs="12">
+                        <MudTextField Class="my-2" @bind-Value="@switchAdminPutRequest.Username" Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField Class="my-2" @bind-Value="@switchAdminPutRequest.Password" Label="Password" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                }
+            }
             <MudDivider Class="mt-2 mb-1" />
 
             @foreach (var port in _switch.Ports)
             {
-        <MudItem xs="12" Class="d-flex flex-row">
-            <MudTextField Class="mr-1" @bind-Value="@port.Number" Label="Port number" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-            <MudSelect Class="ml-1" @bind-Value="@port.Type" Label="Port type" Variant="Variant.Outlined" Margin="Margin.Dense">
-                <MudSelectItem Value="@SwitchPortType.RJ45"></MudSelectItem>
-                <MudSelectItem Value="@SwitchPortType.RJ45_POE"></MudSelectItem>
-                <MudSelectItem Value="@SwitchPortType.RJ45_POEPLUS"></MudSelectItem>
-            </MudSelect>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeletePort(port))" />
-        </MudItem>
+                <MudItem xs="12" Class="d-flex flex-row">
+                    <MudTextField Class="mr-1" @bind-Value="@port.Number" Label="Port number" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudSelect Class="ml-1" @bind-Value="@port.Type" Label="Port type" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        <MudSelectItem Value="@SwitchPortType.RJ45"></MudSelectItem>
+                        <MudSelectItem Value="@SwitchPortType.RJ45_POE"></MudSelectItem>
+                        <MudSelectItem Value="@SwitchPortType.RJ45_POEPLUS"></MudSelectItem>
+                    </MudSelect>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeletePort(port))" />
+                </MudItem>
             }
             <MudIconButton Class="d-flex flex-row my-n1" Icon="@Icons.Material.Rounded.Add" OnClick="@AddPort" Color="Color.Success" aria-label="add"></MudIconButton>
         </MudContainer>
@@ -61,6 +104,12 @@
         switchAdminPutRequest.Ip = _switch.Ip;
         switchAdminPutRequest.Serial = _switch.Serial;
         switchAdminPutRequest.Ports = _switch.Ports;
+        switchAdminPutRequest.Manufacturer = _switch.Manufacturer;
+        switchAdminPutRequest.Model = _switch.Model;
+        switchAdminPutRequest.AuthMethod = _switch.AuthMethod;
+        switchAdminPutRequest.Username = _switch.Username;
+        switchAdminPutRequest.Password = _switch.Password;
+        switchAdminPutRequest.AccessProtocol = _switch.AccessProtocol;
     }
 
     private void AddPort()

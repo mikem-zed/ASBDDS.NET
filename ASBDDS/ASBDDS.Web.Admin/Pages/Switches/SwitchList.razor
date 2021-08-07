@@ -13,26 +13,31 @@
         <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
-        <MudTh></MudTh>
-        <MudTh>Id</MudTh>
+        <MudTh>Manufacturer</MudTh>
+        <MudTh>Model</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Serial</MudTh>
         <MudTh>IP</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Options">
-            <MudMenu Direction="Direction.Bottom" Target="_self" Icon="@Icons.Material.Filled.MoreVert" Dense="true">
-                <MudMenuItem OnClick="@(() => ShowUpdateDialog(context))">Update</MudMenuItem>
-                <MudMenuItem>Delete</MudMenuItem>
-            </MudMenu>
-        </MudTd>
-        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Manufacturer">@context.Manufacturer</MudTd>
+        <MudTd DataLabel="Model">@context.Model</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Serial">@context.Serial</MudTd>
         <MudTd DataLabel="IP">@context.Ip</MudTd>
-
-        <MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowPort(context.Id.ToString()))">@((ShowPorts.GetValueOrDefault(context.Id.ToString()) == true)? "Hide" : "Show") Ports</MudButton></MudTd>
-
+        <MudTd Style="white-space: nowrap; width: 1%;">
+            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowPort(context.Id.ToString()))">
+                @((ShowPorts.GetValueOrDefault(context.Id.ToString()) == true)? "Hide" : "Show") Ports
+            </MudButton>
+        </MudTd>
+        <MudTd Style="white-space: nowrap; width: 1%;" DataLabel="Options">
+            <MudMenu Label="Options" Size="Size.Small" Dense="true" FullWidth="true" Direction="Direction.Start">
+                <MudMenuItem OnClick="@(() => ShowUpdateDialog(context))">Edit</MudMenuItem>
+                <MudMenuItem OnClick="@(() => DeleteSwitch(context))">Delete</MudMenuItem>
+            </MudMenu>
+        </MudTd>
     </RowTemplate>
     <ChildRowContent>
         @if (ShowPorts.GetValueOrDefault(context.Id.ToString()))
@@ -104,7 +109,7 @@
             ShowPorts.Add(element.Id.ToString(), false);
         }
         Switches = responseBody.Data;
-        
+
         _loading = false;
         if (StateChanged) StateHasChanged();
         return 0;
@@ -117,7 +122,7 @@
 
     private async void ShowCreateDialog()
     {
-        var dialog = DialogService.Show<SwitchCreateDialog>("Create new switch");
+        var dialog = DialogService.Show<SwitchCreateDialog>("Create Switch");
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
@@ -128,9 +133,19 @@
     private async void ShowUpdateDialog(SwitchAdminResponse @switch)
     {
         var parameters = new DialogParameters { ["_switch"] = @switch };
-        var dialog = DialogService.Show<SwitchUpdateDialog>("Update switch", parameters);
+        var dialog = DialogService.Show<SwitchUpdateDialog>("Edit Switch", parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
+        {
+            await UpdateTableData(true);
+        }
+    }
+
+    private async void DeleteSwitch(SwitchAdminResponse @switch)
+    {
+        var httpResponse = await httpClient.DeleteAsync("api/admin/switches/" + @switch.Id);
+
+        if (httpResponse.IsSuccessStatusCode)
         {
             await UpdateTableData(true);
         }
@@ -149,6 +164,10 @@
         if (device.Ip.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (device.Serial.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (device.Model.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (device.Manufacturer.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.Shared.Models.Responses;
 using ASBDDS.Shared.Models.Requests;
+using ASBDDS.Shared.Helpers;
 
 namespace ASBDDS.API.Controllers
 {
@@ -85,9 +86,26 @@ namespace ASBDDS.API.Controllers
                     return resp;
                 }
 
+                var switchHelper = new SwitchHelper();
+
+                var model = switchHelper.GetModel(switchReq.Model);
+                var manufacturer = switchHelper.GetManufacturer(switchReq.Manufacturer);
+                if (model == null || manufacturer == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Switch is not supported";
+                    return resp;
+                }
+
                 _switch.Name = switchReq.Name;
                 _switch.Serial = switchReq.Serial;
                 _switch.Ip = switchReq.Ip;
+                _switch.AccessProtocol = switchReq.AccessProtocol;
+                _switch.AuthMethod = switchReq.AuthMethod;
+                _switch.Username = switchReq.Username;
+                _switch.Password = switchReq.Password;
+                _switch.Model = switchReq.Model;
+                _switch.Manufacturer = switchReq.Manufacturer;
 
                 // Completed
                 // 1. Найти каждый порт, если указан айди и изменить его
@@ -147,12 +165,30 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<SwitchAdminResponse>();
             try
             {
+                var switchHelper = new SwitchHelper();
+
+                var model = switchHelper.GetModel(switchReq.Model);
+                var manufacturer = switchHelper.GetManufacturer(switchReq.Manufacturer);
+                if (model == null || manufacturer == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Switch is not supported";
+                    return resp;
+                }
+
                 var _switch = new Switch()
                 {
                     Serial = @switchReq.Serial,
                     Name = @switchReq.Name,
-                    Ip = switchReq.Ip
+                    Ip = switchReq.Ip,
+                    Model = switchReq.Model,
+                    Manufacturer = switchReq.Manufacturer,
+                    Username = switchReq.Username,
+                    Password = switchReq.Password,
+                    AccessProtocol = switchReq.AccessProtocol,
+                    AuthMethod = switchReq.AuthMethod
                 };
+
                 _switch.Ports = new List<SwitchPort>();
                 foreach (var port in @switchReq.Ports)
                     _switch.Ports.Add(new SwitchPort() { Number = port.Number, Type = port.Type, Switch = _switch });

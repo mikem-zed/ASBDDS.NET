@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASBDDS.API.Migrations.DataDb
 {
     [DbContext(typeof(DataDbContext))]
-    [Migration("20210804164701_init")]
-    partial class init
+    [Migration("20210807033630_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -146,13 +146,28 @@ namespace ASBDDS.API.Migrations.DataDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AccessProtocol")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AuthMethod")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Ip")
                         .HasColumnType("text");
 
+                    b.Property<string>("Manufacturer")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Model")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
                         .HasColumnType("text");
 
                     b.Property<Guid?>("RouterId")
@@ -163,6 +178,9 @@ namespace ASBDDS.API.Migrations.DataDb
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

@@ -25,6 +25,12 @@ namespace ASBDDS.Shared.Models.Responses
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Model { get; set; }
+        public string Manufacturer { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public SwitchAccessProtocol AccessProtocol { get; set; }
+        public SwitchAuthMethod AuthMethod { get; set; }
         public string Serial { get; set; }
         public string Ip { get; set; }
         public virtual Guid? RouterId { get; set; }
@@ -39,6 +45,13 @@ namespace ASBDDS.Shared.Models.Responses
             Serial = _switch.Serial;
             Ip = _switch.Ip;
             RouterId = _switch.RouterGuid;
+            Model = _switch.Model;
+            Manufacturer = _switch.Manufacturer;
+            AuthMethod = _switch.AuthMethod;
+            AccessProtocol = _switch.AccessProtocol;
+            Username = _switch.Username;
+            Password = "**********";
+
             Ports = new List<SwitchPortAdminResponse>();
             foreach(var port in _switch.Ports)
             {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ASBDDS.API.Migrations.DataDb
 {
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -64,8 +64,14 @@ namespace ASBDDS.API.Migrations.DataDb
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
+                    Model = table.Column<string>(type: "text", nullable: true),
+                    Manufacturer = table.Column<string>(type: "text", nullable: true),
                     Serial = table.Column<string>(type: "text", nullable: true),
                     Ip = table.Column<string>(type: "text", nullable: true),
+                    AccessProtocol = table.Column<int>(type: "integer", nullable: false),
+                    AuthMethod = table.Column<int>(type: "integer", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: true),
+                    Password = table.Column<string>(type: "text", nullable: true),
                     RouterId = table.Column<Guid>(type: "uuid", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)

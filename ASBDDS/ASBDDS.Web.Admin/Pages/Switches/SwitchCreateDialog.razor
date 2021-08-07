@@ -2,22 +2,60 @@
 @using ASBDDS.Shared.Models.Responses
 @using ASBDDS.Shared.Models.Database.DataDb
 @using Newtonsoft.Json
+@using ASBDDS.Shared.Helpers
 @using System.Text
 @inject HttpClient httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
-        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 300px; width: 400px; overflow-y: scroll">
+        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPostRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPostRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @{
+                    var switchHelper = new SwitchHelper();
+                    foreach (var manufacturer in switchHelper.GetManufacturers())
+                    {
+                        <MudSelectItem Value="@switchHelper.GetManufacturer(manufacturer)"></MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPostRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @{
+                    if (switchAdminPostRequest.Manufacturer != "")
+                    {
+                        var switchHelper = new SwitchHelper();
+                        var models = switchHelper.GetModels(switchAdminPostRequest.Manufacturer);
+                        foreach (var model in models)
+                        {
+                            var modelName = switchHelper.GetModel(model);
+                            <MudSelectItem Value="@modelName"></MudSelectItem>
+                        }
+                    }
+                }
+            </MudSelect>
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPostRequest.Serial" Label="Serial" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
+            <MudDivider Class="mt-2 mb-1" />
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPostRequest.Ip" Label="IP" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudDivider Class="mt-2 mb-1" />
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPostRequest.AccessProtocol" Label="Auth. Method" Variant="Variant.Outlined" Margin="Margin.Dense">
+                <MudSelectItem Value="@SwitchAccessProtocol.SSH"></MudSelectItem>
+                <MudSelectItem Value="@SwitchAccessProtocol.Telnet"></MudSelectItem>
+            </MudSelect>
+            <MudSelect Class="my-2" @bind-Value="@switchAdminPostRequest.AuthMethod" Label="Auth. Method" Variant="Variant.Outlined" Margin="Margin.Dense">
+                <MudSelectItem Value="@SwitchAuthMethod.SSH_USER_PASS">Username and password</MudSelectItem>
+            </MudSelect>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@switchAdminPostRequest.Username" Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@switchAdminPostRequest.Password" Label="Password" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudDivider Class="mt-2 mb-1"> Ports </MudDivider>
 
             @foreach (var port in switchAdminPostRequest.Ports)
             {
@@ -28,7 +66,7 @@
                         <MudSelectItem Value="@SwitchPortType.RJ45_POE"></MudSelectItem>
                         <MudSelectItem Value="@SwitchPortType.RJ45_POEPLUS"></MudSelectItem>
                     </MudSelect>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeletePort(port))"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeletePort(port))" />
                 </MudItem>
             }
             <MudIconButton Class="d-flex flex-row my-n1" Icon="@Icons.Material.Rounded.Add" OnClick="@AddPort" Color="Color.Success" aria-label="add"></MudIconButton>
