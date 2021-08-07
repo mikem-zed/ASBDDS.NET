@@ -22,9 +22,16 @@
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@deviceAdminPutRequest.MacAddress" Label="Mac Address" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@deviceAdminPutRequest.SwitchPortId" Label="Switch Port ID" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-            </MudItem>
+            <MudSelect Class="my-2" @bind-Value="@deviceAdminPutRequest.SwitchPortId" Label="Port type" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (var _switch in switches)
+                {
+                    foreach (var port in _switch.Ports)
+                    {
+                        var portFullName = _switch.Name + " (" + _switch.Model + " / " + port.Number + ")";
+                        <MudSelectItem Value="@port.Id">@portFullName</MudSelectItem>
+                    }
+                }
+            </MudSelect>
         </MudContainer>
     </DialogContent>
     <DialogActions>
@@ -42,6 +49,7 @@
     private DeviceAdminPutRequest deviceAdminPutRequest;
     private DeviceAdminResponse deviceAdminResponse;
     private Task<HttpResponseMessage> httpResp;
+    private List<SwitchAdminResponse> switches = new List<SwitchAdminResponse>();
 
     void Cancel() => MudDialog.Cancel();
 
@@ -55,6 +63,9 @@
         deviceAdminPutRequest.Serial = _device.Serial;
         deviceAdminPutRequest.MacAddress = _device.MacAddress;
         deviceAdminPutRequest.SwitchPortId = _device.SwitchPortId;
+
+        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<SwitchAdminResponse>>>("api/admin/switches/");
+        switches = responseBody.Data;
     }
 
     private async void CreateCallback()

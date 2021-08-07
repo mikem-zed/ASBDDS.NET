@@ -59,6 +59,7 @@ namespace ASBDDS.API.Controllers
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Device not found";
+                    return resp;
                 }
                 else
                 {
@@ -98,19 +99,18 @@ namespace ASBDDS.API.Controllers
                     resp.Status.Message = "Switch port not found";
                     return resp;
                 }
-                else
-                {
-                    device.BaseModel = deviceReq.BaseModel;
-                    device.MacAddress = deviceReq.MacAddress;
-                    device.Model = deviceReq.Model;
-                    device.Name = deviceReq.Name;
-                    device.Serial = deviceReq.Serial;
-                    device.SwitchPort = switchPort;
 
-                    _context.Entry(device).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                    resp.Data = new DeviceAdminResponse(device);
-                }
+                device.BaseModel = deviceReq.BaseModel;
+                device.MacAddress = deviceReq.MacAddress;
+                device.Model = deviceReq.Model;
+                device.Name = deviceReq.Name;
+                device.Serial = deviceReq.Serial;
+                device.SwitchPort = switchPort;
+
+                _context.Entry(device).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                resp.Data = new DeviceAdminResponse(device);
+                
             }
             catch(Exception e)
             {
@@ -133,25 +133,25 @@ namespace ASBDDS.API.Controllers
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Switch port not found";
+                    return resp;
                 }
-                else
+               
+                var device = new Device
                 {
-                    var device = new Device
-                    {
-                        BaseModel = deviceReq.BaseModel,
-                        Created = DateTime.Now,
-                        Updated = DateTime.Now,
-                        Serial = deviceReq.Serial,
-                        StateEnum = DeviceState.POWEROFF,
-                        SwitchPort = _switchPort,
-                        MacAddress = deviceReq.MacAddress,
-                        Model = deviceReq.Model,
-                        Name = deviceReq.Name
-                    };
-                    _context.Devices.Add(device);
-                    await _context.SaveChangesAsync();
-                    resp.Data = new DeviceAdminResponse(device);
-                }
+                    BaseModel = deviceReq.BaseModel,
+                    Created = DateTime.Now,
+                    Updated = DateTime.Now,
+                    Serial = deviceReq.Serial,
+                    StateEnum = DeviceState.POWEROFF,
+                    SwitchPort = _switchPort,
+                    MacAddress = deviceReq.MacAddress,
+                    Model = deviceReq.Model,
+                    Name = deviceReq.Name
+                };
+                _context.Devices.Add(device);
+                await _context.SaveChangesAsync();
+                resp.Data = new DeviceAdminResponse(device);
+                
             }
             catch(Exception e)
             {
@@ -173,13 +173,13 @@ namespace ASBDDS.API.Controllers
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Device not found";
+                    return resp;
                 }
-                else
-                {
-                    _context.Devices.Remove(device);
-                    await _context.SaveChangesAsync();
-                    resp.Data = new DeviceAdminResponse(device);
-                }
+
+                _context.Devices.Remove(device);
+                await _context.SaveChangesAsync();
+                resp.Data = new DeviceAdminResponse(device);
+                
             }
             catch (Exception e)
             {
@@ -296,11 +296,11 @@ namespace ASBDDS.API.Controllers
                 {
                     resp.Status.Code = 1;
                     resp.Status.Message = "Device not found";
+                    return resp;
                 }
-                else
-                {
-                    resp.Data = new DeviceUserResponse(device);
-                }
+
+                resp.Data = new DeviceUserResponse(device);
+                
             }
             catch (Exception e)
             {

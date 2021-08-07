@@ -14,7 +14,7 @@ namespace ASBDDS.Shared.Models.Requests
         public string BaseModel { get; set; }
         public string Serial { get; set; }
         public string MacAddress { get; set; }
-        public virtual Guid SwitchPortId { get; set; }
+        public virtual Guid? SwitchPortId { get; set; }
 
         public DeviceAdminPutRequest() { }
     }

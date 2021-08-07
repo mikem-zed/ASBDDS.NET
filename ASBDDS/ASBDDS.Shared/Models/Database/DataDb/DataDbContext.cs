@@ -15,5 +15,6 @@ namespace ASBDDS.Shared.Models.Database.DataDb
         public DbSet<Router> Routers { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectDeviceLimit> ProjectDeviceLimits { get; set; }
+        public DbSet<DeviceRent> DeviceRents { get; set; }
     }
 }
