@@ -16,42 +16,11 @@ namespace ASBDDS.API.Models
 
     public class UniFiSwitch : IControlPOESwitchPort
     {
-        public ConnectionInfo ConnNfo = new ConnectionInfo("10.141.3.110", 22, "root",
-            new AuthenticationMethod[]{
-
-                // Pasword based Authentication
-                new PasswordAuthenticationMethod("root","ismail"),
-
-
-            }
-        );
-
-        //public static string SendCommand(string cmd, ShellStream sh)
-        //{
-        //    StreamReader reader = null;
-        //    try
-        //    {
-        //        reader = new StreamReader(sh);
-        //        StreamWriter writer = new StreamWriter(sh);
-        //        writer.AutoFlush = true;
-        //        writer.WriteLine(cmd);
-        //        while (sh.Length == 0)
-        //        {
-        //            Thread.Sleep(500);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("exception: " + ex.ToString());
-        //    }
-        //    return reader.ReadToEnd();
-        //}
-
         private void SendSshCommand(SshClient client, string commandsStr)
         {
             client.Connect();
             ShellStream shell = client.CreateShellStream("master", 80, 24, 800, 600, 1024);
-            //var reader = new StreamReader(shell);
+            var reader = new StreamReader(shell);
             var writer = new StreamWriter(shell);
             writer.AutoFlush = true;
             foreach (var commandStr in commandsStr.Split(";", StringSplitOptions.RemoveEmptyEntries))
@@ -61,7 +30,7 @@ namespace ASBDDS.API.Models
                 {
                     Thread.Sleep(500);
                 }
-                //Console.WriteLine(reader.ReadToEnd(););
+                Console.WriteLine(reader.ReadToEnd());
             }
             shell.Close();
             client.Disconnect();
