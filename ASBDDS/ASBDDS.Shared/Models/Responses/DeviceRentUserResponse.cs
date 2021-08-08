@@ -14,8 +14,8 @@ namespace ASBDDS.Shared.Models.Responses
         public Guid ProjectId { get; set; }
         public DateTime Created { get; set; }
         public DateTime? Closed { get; set; }
-        public string Serial { get => device.Serial; }
-        public string MacAddress { get => device.MacAddress; }
+        public string Serial { get; set; }
+        public string MacAddress { get; set; }
         public string IPXEUrl { get; set; }
 
         public DeviceRentUserResponse(DeviceRent deviceRent)
@@ -28,6 +28,10 @@ namespace ASBDDS.Shared.Models.Responses
             Created = deviceRent.Created;
             Closed = deviceRent.Closed;
             IPXEUrl = deviceRent.IPXEUrl;
+            Serial = deviceRent.Device.Serial;
+            MacAddress = deviceRent.Device.MacAddress;
         }
+
+        public DeviceRentUserResponse() { }
     }
 }

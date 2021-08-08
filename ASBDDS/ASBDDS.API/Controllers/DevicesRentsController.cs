@@ -20,14 +20,13 @@ namespace ASBDDS.API.Controllers
             _context = context;
         }
 
-        [HttpGet("api/devicesrents/")]
-        public async Task<ActionResult<ApiResponse<List<DeviceRentUserResponse>>>> GetUserDevicesRents(Guid projectId)
+        [HttpGet("api/devicesrents")]
+        public async Task<ActionResult<ApiResponse<List<DeviceRentUserResponse>>>> GetUserDevicesRents()
         {
             var resp = new ApiResponse<List<DeviceRentUserResponse>>();
             try
             {
-                var devicesRents = await _context.DeviceRents.Where(d => d.Project.Id == projectId)
-                    .Include(d => d.Device).ToListAsync();
+                var devicesRents = await _context.DeviceRents.Include(d => d.Device).Include(d => d.Project).ToListAsync();
                 var _devicesRents = new List<DeviceRentUserResponse>();
                 foreach (var devRent in devicesRents)
                 {
@@ -53,7 +52,7 @@ namespace ASBDDS.API.Controllers
                 if(deviceRent == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Device rent not found";
+                    resp.Status.Message = "device rent not found";
                     return resp;
                 }
                 resp.Data = new DeviceRentUserResponse(deviceRent);
@@ -72,11 +71,11 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var deviceRent = await _context.DeviceRents.FindAsync(id);
+                var deviceRent = await _context.DeviceRents.Include(r => r.Project ).Include(r => r.Device).Where(r => r.Id == id).FirstOrDefaultAsync();
                 if (deviceRent == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Device rent not found";
+                    resp.Status.Message = "device rent not found";
                     return resp;
                 }
 
@@ -100,11 +99,15 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var device = await _context.Devices.FindAsync(devRentReq.DeviceId);
-                if (device == null)
+                var devicesIdinRents = await _context.DeviceRents.Where(r => r.Closed == null).Select(r => r.Device.Id).ToListAsync();
+                var freeDevice = await _context.Devices
+                    .Where(d => !devicesIdinRents.Contains(d.Id) && d.Manufacturer == devRentReq.Manufacturer && d.Model == devRentReq.Model)
+                    .FirstOrDefaultAsync();
+
+                if (freeDevice == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Device not found";
+                    resp.Status.Message = "there are no available devices of the requested model";
                     return resp;
                 }
 
@@ -112,14 +115,14 @@ namespace ASBDDS.API.Controllers
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
                 var deviceRent = new DeviceRent
                 {
                     Name = devRentReq.Name,
-                    Device = device,
+                    Device = freeDevice,
                     Project = project,
                     IPXEUrl = devRentReq.IPXEUrl,
                     UserId = devRentReq.UserId
@@ -144,11 +147,11 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var deviceRent = await _context.DeviceRents.FindAsync(id);
+                var deviceRent = await _context.DeviceRents.Include(r => r.Project).Include(r => r.Device).Where(r => r.Id == id).FirstOrDefaultAsync();
                 if (deviceRent == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Device rent not found";
+                    resp.Status.Message = "device rent not found";
                     return resp;
                 }
 

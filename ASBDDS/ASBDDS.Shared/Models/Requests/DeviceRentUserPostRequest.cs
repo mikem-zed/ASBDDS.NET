@@ -6,7 +6,8 @@ namespace ASBDDS.Shared.Models.Requests
 {
     public class DeviceRentUserPostRequest
     {
-        public Guid DeviceId { get; set; }
+        public string Model { get; set; }
+        public string Manufacturer { get; set; }
         public string Name { get; set; }
         public Guid UserId { get; set; }
         public Guid ProjectId { get; set; }

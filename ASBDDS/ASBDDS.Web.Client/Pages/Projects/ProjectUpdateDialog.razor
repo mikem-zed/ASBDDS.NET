@@ -10,38 +10,42 @@
     <DialogContent>
         <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@devRentAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@projectUserPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
+            @*<MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@projectUserPostRequest." Label="Default Vlan" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>*@
         </MudContainer>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Create">Ok</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Update">Ok</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Parameter] public DeviceRentUserResponse _deviceRent { get; set; }
 
-    private DeviceRentUserPutRequest devRentAdminPutRequest;
-    private DeviceRentUserResponse devRentUserResponse;
+    [Parameter] public ProjectUserResponse _project { get; set; } = new ProjectUserResponse();
+
+    private ProjectUserPutRequest projectUserPutRequest;
+    private ProjectUserResponse projectUserResponse;
     private Task<HttpResponseMessage> httpResp;
 
     void Cancel() => MudDialog.Cancel();
 
     protected override async Task OnInitializedAsync()
     {
-        devRentAdminPutRequest = new DeviceRentUserPutRequest();
-        devRentAdminPutRequest.Name = _deviceRent.Name;
+        projectUserPutRequest = new ProjectUserPutRequest();
+        projectUserPutRequest.Name = _project.Name;
     }
 
     private async void CreateCallback()
     {
         var res = httpResp.Result;
         var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceRentUserResponse>>(bodyStr);
+        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<ProjectUserPutRequest>>(bodyStr);
         if (res.IsSuccessStatusCode && respBodyObj.Status.Code == 0)
         {
 
@@ -49,10 +53,10 @@
         MudDialog.Close(DialogResult.Ok(true));
     }
 
-    private void Create()
+    private void Update()
     {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/devicesrents/" + _deviceRent.Id);
-        var json = JsonConvert.SerializeObject(devRentAdminPutRequest);
+        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/projects/" + _project.Id);
+        var json = JsonConvert.SerializeObject(projectUserPutRequest);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
         httpRequest.Content = data;
 

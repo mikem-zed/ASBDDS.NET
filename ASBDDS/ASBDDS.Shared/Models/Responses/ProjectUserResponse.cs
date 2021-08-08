@@ -17,5 +17,7 @@ namespace ASBDDS.Shared.Models.Responses
             Name = project.Name;
             DefaultVlan = project.DefaultVlan;
         }
+
+        public ProjectUserResponse() { }
     }
 }

@@ -4,7 +4,7 @@
 @inject HttpClient httpClient
 @inject IDialogService DialogService
 
-<MudTable Items="@Devices" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<DeviceRentUserResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+<MudTable Items="@DevicesRents" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<DeviceRentUserResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Devices Rents List</MudText>
         <MudIconButton Class="float-left" Icon="@Icons.Material.Rounded.Add" Color="Color.Success" OnClick="@ShowCreateDialog" aria-label="add"></MudIconButton>
@@ -22,6 +22,8 @@
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
+        @if (context.Closed == null) 
+        { 
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Created">@context.Created</MudTd>
@@ -34,6 +36,7 @@
                 <MudMenuItem OnClick="@(() => DeleteDeviceRent(context))">Delete</MudMenuItem>
             </MudMenu>
         </MudTd>
+        }
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
@@ -54,22 +57,23 @@
     selectedItems = new HashSet<DeviceRentUserResponse>();
 
     private IEnumerable<DeviceRentUserResponse>
-    Devices = new List<DeviceRentUserResponse>();
+    DevicesRents = new List<DeviceRentUserResponse>();
 
     protected override async Task OnInitializedAsync()
     {
+        _loading = true;
         await UpdateTableData();
     }
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-        _loading = true;
-        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<DeviceRentUserResponse>>>("api/admin/devicesrents/");
+        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<DeviceRentUserResponse>>>("api/devicesrents");
 
-        Devices = responseBody.Data;
+        DevicesRents = responseBody.Data;
 
         _loading = false;
-        if (StateChanged) StateHasChanged();
+        if (StateChanged)
+            StateHasChanged();
         return 0;
     }
 
@@ -79,6 +83,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -90,6 +95,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -100,10 +106,10 @@
         parameters.Add("EntityName", "device rent");
 
         var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
-
+        _loading = true;
         if (!result.Cancelled)
         {
-            var httpResponse = await httpClient.DeleteAsync("api/admin/devicesrents/" + device.Id);
+            var httpResponse = await httpClient.DeleteAsync("api/devicesrents/" + device.Id);
             if (httpResponse.IsSuccessStatusCode)
             {
                 await UpdateTableData(true);

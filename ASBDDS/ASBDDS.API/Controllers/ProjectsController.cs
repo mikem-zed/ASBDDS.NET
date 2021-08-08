@@ -54,7 +54,7 @@ namespace ASBDDS.API.Controllers
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
@@ -80,7 +80,7 @@ namespace ASBDDS.API.Controllers
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
@@ -161,7 +161,7 @@ namespace ASBDDS.API.Controllers
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
@@ -190,7 +190,7 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<List<ProjectUserResponse>>();
             try
             {
-                var projects = await _context.Projects.Include(p => p.ProjectDeviceLimits).ToListAsync();
+                var projects = await _context.Projects.ToListAsync();
                 var _projects = new List<ProjectUserResponse>();
                 foreach (var project in projects)
                 {
@@ -217,7 +217,7 @@ namespace ASBDDS.API.Controllers
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
@@ -242,7 +242,7 @@ namespace ASBDDS.API.Controllers
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
@@ -291,11 +291,11 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<ProjectUserResponse>();
             try
             {
-                var project = await _context.Projects.FindAsync(id);
+                var project = await _context.Projects.Include(p => p.ProjectDeviceLimits).Where(p => p.Id == id).FirstOrDefaultAsync();
                 if (project == null)
                 {
                     resp.Status.Code = 1;
-                    resp.Status.Message = "Project not found";
+                    resp.Status.Message = "project not found";
                     return resp;
                 }
 
