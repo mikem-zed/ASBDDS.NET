@@ -45,7 +45,7 @@
         <MudTablePager />
     </PagerContent>
 </MudTable>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
     private bool _loading;
     private bool dense = true;
@@ -58,6 +58,7 @@
     private DeviceAdminResponse selectedItem2 = null;
     private HashSet<DeviceAdminResponse>
     selectedItems = new HashSet<DeviceAdminResponse>();
+    private SnackBars _snackBars;
 
     private IEnumerable<DeviceAdminResponse>
     Devices = new List<DeviceAdminResponse>();
@@ -117,7 +118,15 @@
             var httpResponse = await httpClient.DeleteAsync("api/admin/devices/" + device.Id);
             if (httpResponse.IsSuccessStatusCode)
             {
-                await UpdateTableData(true);
+                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<DeviceAdminResponse>>();
+                if (res.Result.Status.Code != 0)
+                {
+                    _snackBars.ShowError(res.Result.Status.Message);
+                }
+                else
+                {
+                    await UpdateTableData(true);
+                }
             }
         }
     }
@@ -128,7 +137,15 @@
         var httpResponse = await httpClient.PostAsync("api/admin/devices/" + device.Id + "/poweroff", null);
         if (httpResponse.IsSuccessStatusCode)
         {
-            await UpdateTableData(true);
+            var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<DeviceAdminResponse>>();
+            if (res.Result.Status.Code != 0)
+            {
+                _snackBars.ShowError(res.Result.Status.Message);
+            }
+            else
+            {
+                await UpdateTableData(true);
+            }
         }
     }
 
@@ -138,7 +155,15 @@
         var httpResponse = await httpClient.PostAsync("api/admin/devices/" + device.Id + "/poweron", null);
         if (httpResponse.IsSuccessStatusCode)
         {
-            await UpdateTableData(true);
+            var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<DeviceAdminResponse>>();
+            if (res.Result.Status.Code != 0)
+            {
+                _snackBars.ShowError(res.Result.Status.Message);
+            }
+            else
+            {
+                await UpdateTableData(true);
+            }
         }
     }
 

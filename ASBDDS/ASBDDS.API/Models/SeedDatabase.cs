@@ -14,5 +14,4 @@ namespace ASBDDS.API.Models
             dataContext.Database.Migrate();
         }
     }
-
 }

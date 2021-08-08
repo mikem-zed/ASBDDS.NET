@@ -51,20 +51,20 @@
         <MudButton Color="Color.Primary" OnClick="Create">Ok</MudButton>
     </DialogActions>
 </MudDialog>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
-    private DeviceRentUserPostRequest devRentAdminPostRequest;
+    private DeviceRentUserPostRequest devRentAdminPostRequest = new DeviceRentUserPostRequest();
     private DeviceRentUserResponse projectAdminResponse;
     private Task<HttpResponseMessage> httpResp;
+    private SnackBars _snackBars;
 
-    void Cancel() => MudDialog.Cancel();
+    private void Cancel() => MudDialog.Cancel();
 
     protected override async Task OnInitializedAsync()
     {
-        devRentAdminPostRequest = new DeviceRentUserPostRequest();
     }
 
     private async void CreateCallback()
@@ -72,9 +72,9 @@
         var res = httpResp.Result;
         var bodyStr = await res.Content.ReadAsStringAsync();
         var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceRentUserPostRequest>>(bodyStr);
-        if (res.IsSuccessStatusCode && respBodyObj.Status.Code == 0)
+        if (respBodyObj.Status.Code != 0)
         {
-
+            _snackBars.ShowError(respBodyObj.Status.Message);
         }
         MudDialog.Close(DialogResult.Ok(true));
     }

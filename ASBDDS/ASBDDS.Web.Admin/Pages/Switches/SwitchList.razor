@@ -77,7 +77,7 @@
         </MudTablePager>
     </PagerContent>
 </MudTable>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
     private bool _loading;
     private bool dense = true;
@@ -90,6 +90,7 @@
     private SwitchAdminResponse selectedItem2 = null;
     private HashSet<SwitchAdminResponse>
     selectedItems = new HashSet<SwitchAdminResponse>();
+    private SnackBars _snackBars;
 
     private IEnumerable<SwitchAdminResponse> Switches = new List<SwitchAdminResponse>();
     private Dictionary<string, bool> ShowPorts = new Dictionary<string, bool>();
@@ -153,7 +154,15 @@
             var httpResponse = await httpClient.DeleteAsync("api/admin/switches/" + @switch.Id);
             if (httpResponse.IsSuccessStatusCode)
             {
-                await UpdateTableData(true);
+                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<SwitchAdminResponse>>();
+                if (res.Result.Status.Code != 0)
+                {
+                    _snackBars.ShowError(res.Result.Status.Message);
+                }
+                else
+                {
+                    await UpdateTableData(true);
+                }
             }
         }
     }

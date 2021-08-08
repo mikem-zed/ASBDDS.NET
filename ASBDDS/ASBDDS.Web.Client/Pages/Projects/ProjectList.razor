@@ -33,7 +33,7 @@
         <MudTablePager />
     </PagerContent>
 </MudTable>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
     private bool _loading;
     private bool dense = true;
@@ -46,6 +46,7 @@
     private ProjectUserResponse selectedItem2 = null;
     private HashSet<ProjectUserResponse>
     selectedItems = new HashSet<ProjectUserResponse>();
+    private SnackBars _snackBars;
 
     private IEnumerable<ProjectUserResponse> Projects = new List<ProjectUserResponse>();
 
@@ -56,7 +57,6 @@
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-
         var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<ProjectUserResponse>>>("api/projects/");
 
         Projects = responseBody.Data;
@@ -91,7 +91,6 @@
         {
             _loading = false;
         }
-
     }
 
     private async void DeleteProject(ProjectUserResponse project)
@@ -107,7 +106,15 @@
             var httpResponse = await httpClient.DeleteAsync("api/projects/" + project.Id);
             if (httpResponse.IsSuccessStatusCode)
             {
-                await UpdateTableData(true);
+                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<ProjectUserResponse>>();
+                if(res.Result.Status.Code != 0)
+                {
+                    _snackBars.ShowError(res.Result.Status.Message);
+                }
+                else
+                {
+                    await UpdateTableData(true);
+                }
             }
         }
         else

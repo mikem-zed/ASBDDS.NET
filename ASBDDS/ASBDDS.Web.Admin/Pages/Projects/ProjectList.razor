@@ -68,7 +68,7 @@
         <MudTablePager />
     </PagerContent>
 </MudTable>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
     private bool _loading;
     private bool dense = true;
@@ -81,6 +81,7 @@
     private ProjectAdminResponse selectedItem2 = null;
     private HashSet<ProjectAdminResponse>
     selectedItems = new HashSet<ProjectAdminResponse>();
+    private SnackBars _snackBars;
 
     private IEnumerable<ProjectAdminResponse> Projects = new List<ProjectAdminResponse>();
     private Dictionary<string, bool> ShowDeviceLimits = new Dictionary<string, bool>();
@@ -144,7 +145,15 @@
             var httpResponse = await httpClient.DeleteAsync("api/admin/projects/" + project.Id);
             if (httpResponse.IsSuccessStatusCode)
             {
-                await UpdateTableData(true);
+                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<ProjectAdminResponse>>();
+                if (res.Result.Status.Code != 0)
+                {
+                    _snackBars.ShowError(res.Result.Status.Message);
+                }
+                else
+                {
+                    await UpdateTableData(true);
+                }
             }
         }
     }

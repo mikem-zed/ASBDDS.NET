@@ -37,7 +37,7 @@
         <MudButton Color="Color.Primary" OnClick="Create">Ok</MudButton>
     </DialogActions>
 </MudDialog>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
@@ -45,6 +45,7 @@
     private ProjectAdminPostRequest projectAdminPostRequest;
     private ProjectAdminResponse projectAdminResponse;
     private Task<HttpResponseMessage> httpResp;
+    private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
@@ -69,9 +70,9 @@
         var res = httpResp.Result;
         var bodyStr = await res.Content.ReadAsStringAsync();
         var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<ProjectAdminPostRequest>>(bodyStr);
-        if (res.IsSuccessStatusCode && respBodyObj.Status.Code == 0)
+        if (respBodyObj.Status.Code != 0)
         {
-
+            _snackBars.ShowError(respBodyObj.Status.Message);
         }
         MudDialog.Close(DialogResult.Ok(true));
     }

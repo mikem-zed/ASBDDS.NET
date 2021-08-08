@@ -61,7 +61,7 @@
         <MudButton Color="Color.Primary" OnClick="Update">Ok</MudButton>
     </DialogActions>
 </MudDialog>
-
+<SnackBars @ref="_snackBars"></SnackBars>
 @code {
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
@@ -73,6 +73,7 @@
     private Task<HttpResponseMessage> httpResp;
     private List<SwitchAdminResponse> switches = new List<SwitchAdminResponse>();
     private string selectedSwitchPortName = "";
+    private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
@@ -101,9 +102,9 @@
         var res = httpResp.Result;
         var bodyStr = await res.Content.ReadAsStringAsync();
         var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceAdminPutRequest>>(bodyStr);
-        if (res.IsSuccessStatusCode && respBodyObj.Status.Code == 0)
+        if (respBodyObj.Status.Code != 0)
         {
-
+            _snackBars.ShowError(respBodyObj.Status.Message);
         }
         MudDialog.Close(DialogResult.Ok(true));
     }
