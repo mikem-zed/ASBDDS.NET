@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ASBDDS.Shared.Models.Database.DataDb
 {
-    public class DataDbContext : DbContext
+    public class DataDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         public DataDbContext(DbContextOptions<DataDbContext> options) : base(options)
         {

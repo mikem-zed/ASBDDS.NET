@@ -10,9 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using ASBDDS.API.Servers.DHCP;
-using System.Net;
-using System;
-using ASBDDS.API.Models.Utils;
 
 namespace ASBDDS.NET
 {
@@ -37,6 +34,8 @@ namespace ASBDDS.NET
         {
             services.AddDbContext<DataDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DataDbConnection"),
                     x => x.MigrationsAssembly("ASBDDS.API")));
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddEntityFrameworkStores<DataDbContext>();
             services.AddTransient(provider => { return TFTPServer; });
             services.AddTransient(provider => { return DHCPServer; });
             services.AddControllersWithViews();
