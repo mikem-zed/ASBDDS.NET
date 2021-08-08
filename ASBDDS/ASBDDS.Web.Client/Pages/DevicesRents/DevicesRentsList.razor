@@ -1,0 +1,130 @@
+﻿@page "/devicesrents"
+@using System.Net.Http.Json
+@using ASBDDS.Shared.Models.Responses
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+
+<MudTable Items="@Devices" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<DeviceRentUserResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Devices Rents List</MudText>
+        <MudIconButton Class="float-left" Icon="@Icons.Material.Rounded.Add" Color="Color.Success" OnClick="@ShowCreateDialog" aria-label="add"></MudIconButton>
+        <MudText Class="small">Add Device Rent</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Created</MudTh>
+        <MudTh>IPXE Url</MudTh>
+        <MudTh>Serial</MudTh>
+        <MudTh>Mac Address</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Created">@context.Created</MudTd>
+        <MudTd DataLabel="IPXEUrl">@context.IPXEUrl</MudTd>
+        <MudTd DataLabel="Serial">@context.Serial</MudTd>
+        <MudTd DataLabel="MacAddress">@context.MacAddress</MudTd>
+        <MudTd Style="white-space: nowrap; width: 1%;" DataLabel="Options">
+            <MudMenu Label="Options" Size="Size.Small" Dense="true" FullWidth="true" Direction="Direction.Start">
+                <MudMenuItem OnClick="@(() => ShowUpdateDialog(context))">Edit</MudMenuItem>
+                <MudMenuItem OnClick="@(() => DeleteDeviceRent(context))">Delete</MudMenuItem>
+            </MudMenu>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private bool _loading;
+    private bool dense = true;
+    private bool hover = true;
+    private bool striped = true;
+    private bool bordered = true;
+    private string searchString1 = "";
+    private string searchString2 = "";
+    private DeviceRentUserResponse selectedItem1 = null;
+    private DeviceRentUserResponse selectedItem2 = null;
+    private HashSet<DeviceRentUserResponse>
+    selectedItems = new HashSet<DeviceRentUserResponse>();
+
+    private IEnumerable<DeviceRentUserResponse>
+    Devices = new List<DeviceRentUserResponse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateTableData();
+    }
+
+    private async Task<int> UpdateTableData(bool StateChanged = false)
+    {
+        _loading = true;
+        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<DeviceRentUserResponse>>>("api/admin/devicesrents/");
+
+        Devices = responseBody.Data;
+
+        _loading = false;
+        if (StateChanged) StateHasChanged();
+        return 0;
+    }
+
+    private async void ShowCreateDialog()
+    {
+        var dialog = DialogService.Show<DevicesRentsCreateDialog>("Create Device Rent");
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            await UpdateTableData(true);
+        }
+    }
+
+    private async void ShowUpdateDialog(DeviceRentUserResponse device)
+    {
+        var parameters = new DialogParameters { ["_deviceRent"] = device };
+        var dialog = DialogService.Show<DevicesRentsUpdateDialog>("Edit Device", parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            await UpdateTableData(true);
+        }
+    }
+
+    private async void DeleteDeviceRent(DeviceRentUserResponse device)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("EntityName", "device rent");
+
+        var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
+
+        if (!result.Cancelled)
+        {
+            var httpResponse = await httpClient.DeleteAsync("api/admin/devicesrents/" + device.Id);
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                await UpdateTableData(true);
+            }
+        }
+    }
+
+    private bool FilterFunc1(DeviceRentUserResponse device) => FilterFunc(device, searchString1);
+
+    private bool FilterFunc(DeviceRentUserResponse device, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (device.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (device.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (device.Serial.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (device.MacAddress.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}
