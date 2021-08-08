@@ -81,9 +81,6 @@ namespace ASBDDS.API.Migrations.DataDb
                     b.Property<Guid?>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("RentEnd")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 

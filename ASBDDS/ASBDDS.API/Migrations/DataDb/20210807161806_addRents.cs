@@ -14,7 +14,7 @@ namespace ASBDDS.API.Migrations.DataDb
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: true),
-                    RentEnd = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Closed = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>

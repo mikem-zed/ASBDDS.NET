@@ -7,17 +7,6 @@ namespace ASBDDS.API.Migrations.DataDb
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "RentEnd",
-                table: "DeviceRents",
-                newName: "Created");
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "Closed",
-                table: "DeviceRents",
-                type: "timestamp without time zone",
-                nullable: true);
-
             migrationBuilder.AddColumn<Guid>(
                 name: "DeviceId",
                 table: "DeviceRents",
@@ -61,10 +50,6 @@ namespace ASBDDS.API.Migrations.DataDb
                 table: "DeviceRents");
 
             migrationBuilder.DropColumn(
-                name: "Closed",
-                table: "DeviceRents");
-
-            migrationBuilder.DropColumn(
                 name: "DeviceId",
                 table: "DeviceRents");
 
@@ -75,11 +60,6 @@ namespace ASBDDS.API.Migrations.DataDb
             migrationBuilder.DropColumn(
                 name: "Updated",
                 table: "DeviceRents");
-
-            migrationBuilder.RenameColumn(
-                name: "Created",
-                table: "DeviceRents",
-                newName: "RentEnd");
         }
     }
 }
