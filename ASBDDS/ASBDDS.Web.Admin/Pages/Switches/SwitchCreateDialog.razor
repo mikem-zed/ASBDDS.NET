@@ -56,7 +56,7 @@
                 <MudTextField Class="my-2" @bind-Value="@switchAdminPostRequest.Password" Label="Password" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudDivider Class="mt-2 mb-1"> Ports </MudDivider>
-
+            <b>Switch ports</b>
             @foreach (var port in switchAdminPostRequest.Ports)
             {
                 <MudItem xs="12" Class="d-flex flex-row">
@@ -66,7 +66,7 @@
                         <MudSelectItem Value="@SwitchPortType.RJ45_POE"></MudSelectItem>
                         <MudSelectItem Value="@SwitchPortType.RJ45_POEPLUS"></MudSelectItem>
                     </MudSelect>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeletePort(port))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeletePort(port))" />
                 </MudItem>
             }
             <MudIconButton Class="d-flex flex-row my-n1" Icon="@Icons.Material.Rounded.Add" OnClick="@AddPort" Color="Color.Success" aria-label="add"></MudIconButton>

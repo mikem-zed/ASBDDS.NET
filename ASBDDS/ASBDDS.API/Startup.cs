@@ -129,8 +129,6 @@ namespace ASBDDS.NET
                 app.UseHsts();
             }
 
-            app.UseAuthorization();
-            app.UseAuthentication();
             //app.UseSwagger();
             //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASBDDS.NET v1"));
 
