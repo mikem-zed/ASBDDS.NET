@@ -9,13 +9,14 @@ using Microsoft.EntityFrameworkCore;
 using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.Shared.Models.Requests;
 using ASBDDS.Shared.Models.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ASBDDS.API.Controllers 
 {
-    
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly DataDbContext _context;
@@ -192,6 +193,7 @@ namespace ASBDDS.API.Controllers
             //TODO: write Editor user.
         }
 
+        [AllowAnonymous]
         [HttpPost("api/users/jwt")]
         public async Task<ActionResult<ApiResponse<TokenResponse>>> GenerateToken(LoginPostRequest request)
         {
@@ -211,13 +213,14 @@ namespace ASBDDS.API.Controllers
                 {
                     var userClaims = await GetClaimsIdentity(dbuser);
                     var now = DateTime.UtcNow;
+                    var expires = now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME));
                     // создаем JWT-токен
                     var jwt = new JwtSecurityToken(
                         issuer: AuthOptions.ISSUER,
                         audience: AuthOptions.AUDIENCE,
                         notBefore: now,
                         claims: userClaims.Claims,
-                        expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                        expires: expires,
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
                     var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
@@ -225,6 +228,7 @@ namespace ASBDDS.API.Controllers
                     {
                         AccessToken = encodedJwt,
                         UserName = userClaims.Name,
+                        Expires = jwt.ValidTo
                     };
                 }
             }
@@ -235,7 +239,7 @@ namespace ASBDDS.API.Controllers
             }
             return resp;
         }
-        
+
         private async Task<ClaimsIdentity> GetClaimsIdentity(ApplicationUser user)
         {
             var userRoles = await _userManager.GetRolesAsync(user);

@@ -5,8 +5,17 @@ namespace ASBDDS.Shared.Models.APIBaseModels.User
 {
     public class UserAPIBaseModel
     {
+        /// <summary>
+        /// User name
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// User last name
+        /// </summary>
         public string LastName { get; set; }
+        /// <summary>
+        /// User e-mail
+        /// </summary>
         public string Email { get; set; }
 
         public UserAPIBaseModel() { }

@@ -123,6 +123,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -135,6 +136,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -145,7 +147,6 @@
         parameters.Add("EntityName", "project");
 
         var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
-
         if (!result.Cancelled)
         {
             var httpResponse = await httpClient.DeleteAsync("api/admin/projects/" + project.Id);
@@ -158,6 +159,7 @@
                 }
                 else
                 {
+                    _loading = true;
                     await UpdateTableData(true);
                 }
             }

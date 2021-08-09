@@ -10,10 +10,12 @@ using ASBDDS.Shared.Models.Responses;
 using ASBDDS.Shared.Models.Requests;
 using ASBDDS.API.Models;
 using System.Threading;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASBDDS.API.Controllers
 {
     [ApiController]
+    [Authorize]
     public class DevicesController : ControllerBase
     {
         private readonly DataDbContext _context;
@@ -25,6 +27,10 @@ namespace ASBDDS.API.Controllers
 
         #region Admin panel API
         // GET: api/Devices
+        /// <summary>
+        /// Get all devices
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("api/admin/devices/")]
         public async Task<ActionResult<ApiResponse<List<DeviceAdminResponse>>>> GetDevices()
         {
@@ -47,7 +53,12 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
-        // GET: api/Devices/5
+        // GET: api/Devices/5/
+        /// <summary>
+        /// Get device by ID
+        /// </summary>
+        /// <param name="id">Device ID</param>
+        /// <returns></returns>
         [HttpGet("api/admin/devices/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> GetDevice(Guid id)
         {
@@ -76,6 +87,12 @@ namespace ASBDDS.API.Controllers
 
         // PUT: api/Devices/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Update device by ID
+        /// </summary>
+        /// <param name="id">Device ID</param>
+        /// <param name="deviceReq"></param>
+        /// <returns></returns>
         [HttpPut("api/admin/devices/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PutDevice(Guid id, DeviceAdminPutRequest @deviceReq)
         {
@@ -122,6 +139,11 @@ namespace ASBDDS.API.Controllers
 
         // POST: api/Devices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Add new device
+        /// </summary>
+        /// <param name="deviceReq"></param>
+        /// <returns></returns>
         [HttpPost("api/admin/devices/")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PostDevice(DeviceAdminPostRequest @deviceReq)
         {
@@ -162,6 +184,11 @@ namespace ASBDDS.API.Controllers
         }
 
         // DELETE: api/Devices/5
+        /// <summary>
+        /// Delete device by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("api/admin/devices/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> DeleteDevice(Guid id)
         {
@@ -190,18 +217,33 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Poweroff the device by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("api/admin/devices/{id}/poweroff")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PowerOffDevice(Guid id)
         {
             return await AdminPowerSwitchDevice(id, false);
         }
 
+        /// <summary>
+        /// Poweron the device by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("api/admin/devices/{id}/poweron")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PowerOnDevice(Guid id)
         {
             return await AdminPowerSwitchDevice(id, true);
         }
 
+        /// <summary>
+        /// Reboot the device by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("api/admin/devices/{id}/reboot")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> RebootDevice(Guid id)
         {

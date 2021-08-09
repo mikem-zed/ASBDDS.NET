@@ -6,7 +6,14 @@ namespace ASBDDS.Shared.Models.Responses
 {
     public class ResponseStatus
     {
+        /// <summary>
+        /// Response code
+        /// 0 -> OK
+        /// </summary>
         public int Code { get; set; } = 0;
+        /// <summary>
+        /// Response message
+        /// </summary>
         public string Message { get; set; }
 
     }

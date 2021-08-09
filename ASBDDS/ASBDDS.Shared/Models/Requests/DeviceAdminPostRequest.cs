@@ -9,11 +9,29 @@ namespace ASBDDS.Shared.Models.Requests
 {
     public class DeviceAdminPostRequest
     {
+        /// <summary>
+        /// Device name
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Device model
+        /// </summary>
         public string Model { get; set; }
+        /// <summary>
+        /// Device manufacturer
+        /// </summary>
         public string Manufacturer { get; set; }
+        /// <summary>
+        /// Device serial
+        /// </summary>
         public string Serial { get; set; }
+        /// <summary>
+        /// Device mac address
+        /// </summary>
         public string MacAddress { get; set; }
+        /// <summary>
+        /// Switch port ID
+        /// </summary>
         public Guid? SwitchPortId { get; set; }
         public DeviceAdminPostRequest() { }
     }

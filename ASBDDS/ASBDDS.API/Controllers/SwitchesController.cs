@@ -8,11 +8,13 @@ using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.Shared.Models.Responses;
 using ASBDDS.Shared.Models.Requests;
 using ASBDDS.Shared.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASBDDS.API.Controllers
 {
     [Route("api/admin/switches")]
     [ApiController]
+    [Authorize]
     public class SwitchesController : ControllerBase
     {
         private readonly DataDbContext _context;

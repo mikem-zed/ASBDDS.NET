@@ -7,15 +7,45 @@ namespace ASBDDS.Shared.Models.Responses
 {
     public class DeviceRentUserResponse
     {
+        /// <summary>
+        /// Device object
+        /// </summary>
         private Device device { get; set; }
+        /// <summary>
+        /// Rent ID
+        /// </summary>
         public Guid Id { get; set; }
+        /// <summary>
+        /// Device name
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The ID of the user who created rent
+        /// </summary>
         public Guid CreatorId { get; set; }
+        /// <summary>
+        /// The project ID to which rent is attached
+        /// </summary>
         public Guid ProjectId { get; set; }
+        /// <summary>
+        /// Date of creation rent
+        /// </summary>
         public DateTime Created { get; set; }
+        /// <summary>
+        /// End date of rent
+        /// </summary>
         public DateTime? Closed { get; set; }
+        /// <summary>
+        /// Serial number of the leased device
+        /// </summary>
         public string Serial { get; set; }
+        /// <summary>
+        /// Mac address number of the leased device
+        /// </summary>
         public string MacAddress { get; set; }
+        /// <summary>
+        /// Link to IPXE network bootloader
+        /// </summary>
         public string IPXEUrl { get; set; }
 
         public DeviceRentUserResponse(DeviceRent deviceRent)

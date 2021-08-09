@@ -102,7 +102,6 @@
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-        _loading = true;
         var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<SwitchAdminResponse>>>("api/admin/switches/");
         ShowPorts.Clear();
         foreach (var element in responseBody.Data)
@@ -127,6 +126,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -138,6 +138,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -161,6 +162,7 @@
                 }
                 else
                 {
+                    _loading = true;
                     await UpdateTableData(true);
                 }
             }

@@ -59,11 +59,10 @@
     private SnackBars _snackBars;
 
     private IEnumerable<DeviceRentUserResponse>
-DevicesRents = new List<DeviceRentUserResponse>();
+        DevicesRents = new List<DeviceRentUserResponse>();
 
     protected override async Task OnInitializedAsync()
     {
-        _loading = true;
         await UpdateTableData();
     }
 
@@ -108,7 +107,6 @@ DevicesRents = new List<DeviceRentUserResponse>();
         parameters.Add("EntityName", "device rent");
 
         var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
-        _loading = true;
         if (!result.Cancelled)
         {
             var httpResponse = await httpClient.DeleteAsync("api/devicesrents/" + device.Id);
@@ -121,6 +119,7 @@ DevicesRents = new List<DeviceRentUserResponse>();
                 }
                 else
                 {
+                    _loading = true;
                     await UpdateTableData(true);
                 }
             }

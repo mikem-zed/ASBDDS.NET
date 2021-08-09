@@ -76,6 +76,13 @@ namespace ASBDDS.NET
                 var filePathApi = Path.Combine(System.AppContext.BaseDirectory, "ASBDDS.API.xml");
                 c.IncludeXmlComments(filePathShared);
                 c.IncludeXmlComments(filePathApi);
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+                    In = ParameterLocation.Header, 
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey 
+                });
+
             });
         }
 

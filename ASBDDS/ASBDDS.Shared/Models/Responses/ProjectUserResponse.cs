@@ -7,8 +7,17 @@ namespace ASBDDS.Shared.Models.Responses
 {
     public class ProjectUserResponse
     {
+        /// <summary>
+        /// Project ID
+        /// </summary>
         public Guid Id { get; set; }
+        /// <summary>
+        /// Project name
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Default vlan
+        /// </summary>
         public int DefaultVlan { get; set; }
 
         public ProjectUserResponse(Project project)

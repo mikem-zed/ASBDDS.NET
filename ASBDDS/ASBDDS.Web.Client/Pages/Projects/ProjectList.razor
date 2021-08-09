@@ -69,10 +69,10 @@
     private async void ShowCreateDialog()
     {
         var dialog = DialogService.Show<ProjectCreateDialog>("Create Project");
-        _loading = true;
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
         }
     }
@@ -81,15 +81,11 @@
     {
         var parameters = new DialogParameters { ["_project"] = project };
         var dialog = DialogService.Show<ProjectUpdateDialog>("Edit Project", parameters);
-        _loading = true;
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            _loading = true;
             await UpdateTableData(true);
-        }
-        else
-        {
-            _loading = false;
         }
     }
 
@@ -99,8 +95,7 @@
         parameters.Add("EntityName", "project");
 
         var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
-
-        _loading = true;
+        
         if (!result.Cancelled)
         {
             var httpResponse = await httpClient.DeleteAsync("api/projects/" + project.Id);
@@ -113,13 +108,10 @@
                 }
                 else
                 {
+                    _loading = true;
                     await UpdateTableData(true);
                 }
             }
-        }
-        else
-        {
-            _loading = false;
         }
     }
 

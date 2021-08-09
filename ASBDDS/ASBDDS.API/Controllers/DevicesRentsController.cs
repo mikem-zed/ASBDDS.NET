@@ -7,10 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASBDDS.API.Controllers
 {
+    
     [ApiController]
+    [Authorize]
     public class DevicesRentsController : ControllerBase
     {
         private readonly DataDbContext _context;
@@ -26,7 +29,11 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<List<DeviceRentUserResponse>>();
             try
             {
-                var devicesRents = await _context.DeviceRents.Include(d => d.Device).Include(d => d.Project).ToListAsync();
+                var devicesRents = await _context.DeviceRents
+                    .Include(d => d.Device)
+                    .Include(d => d.Project)
+                    .Include(d => d.Creator)
+                    .ToListAsync();
                 var _devicesRents = new List<DeviceRentUserResponse>();
                 foreach (var devRent in devicesRents)
                 {

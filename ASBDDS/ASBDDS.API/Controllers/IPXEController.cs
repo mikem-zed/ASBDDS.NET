@@ -11,11 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using ASBDDS.Shared.Helpers;
 using ASBDDS.API.Interfaces;
 using ASBDDS.API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ASBDDS.API.Controllers
 {
     [Route("api/ipxe")]
     [ApiController]
+    [Authorize]
     public class IPXEController : ControllerBase
     {
         private readonly DataDbContext _context;

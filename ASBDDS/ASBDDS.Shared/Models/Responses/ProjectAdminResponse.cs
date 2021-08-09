@@ -7,8 +7,17 @@ namespace ASBDDS.Shared.Models.Responses
 {
     public class DeviceLimitResponse
     {
+        /// <summary>
+        /// Device manufacturer
+        /// </summary>
         public string Manufacturer { get; set; }
+        /// <summary>
+        /// Device model
+        /// </summary>
         public string Model { get; set; }
+        /// <summary>
+        /// Number of devices
+        /// </summary>
         public int Count { get; set; }
 
         public DeviceLimitResponse()
@@ -26,11 +35,29 @@ namespace ASBDDS.Shared.Models.Responses
 
     public class ProjectAdminResponse
     {
+        /// <summary>
+        /// Project ID
+        /// </summary>
         public Guid Id { get; set; }
+        /// <summary>
+        /// Project name
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Project default vlan
+        /// </summary>
         public int DefaultVlan { get; set; }
+        /// <summary>
+        /// Allow custom bootloader
+        /// </summary>
         public bool AllowCustomBootloaders { get; set; }
+        /// <summary>
+        /// List of devices limits
+        /// </summary>
         public List<DeviceLimitResponse> DeviceLimits { get; set; }
+        /// <summary>
+        /// Is project disabled
+        /// </summary>
         public bool Disabled { get; set; }
 
         public ProjectAdminResponse() { }
