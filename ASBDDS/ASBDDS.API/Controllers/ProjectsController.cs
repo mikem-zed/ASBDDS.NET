@@ -23,6 +23,10 @@ namespace ASBDDS.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Get all projects as admin
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("api/admin/projects/")]
         public async Task<ActionResult<ApiResponse<List<ProjectAdminResponse>>>> GetProjects()
         {
@@ -45,6 +49,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Get project by ID as admin
+        /// </summary>
+        /// <param name="id">Project ID</param>
+        /// <returns></returns>
         [HttpGet("api/admin/projects/{id}")]
         public async Task<ActionResult<ApiResponse<ProjectAdminResponse>>> GetProject(Guid id)
         {
@@ -70,6 +79,12 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Update project by ID as admin
+        /// </summary>
+        /// <param name="id">Project ID</param>
+        /// <param name="projectReq">See schema</param>
+        /// <returns></returns>
         [HttpPut("api/admin/projects/{id}")]
         public async Task<ActionResult<ApiResponse<ProjectAdminResponse>>> PutProject(Guid id, ProjectAdminPutRequest projectReq)
         {
@@ -110,6 +125,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Add new project as admin
+        /// </summary>
+        /// <param name="projectReq">See schema</param>
+        /// <returns></returns>
         [HttpPost("api/admin/projects/")]
         public async Task<ApiResponse<ProjectAdminResponse>> PostProject(ProjectAdminPostRequest projectReq)
         {
@@ -142,6 +162,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Delete project by ID as admin
+        /// </summary>
+        /// <param name="id">Project ID</param>
+        /// <returns></returns>
         [HttpDelete("api/admin/projects/{id}")]
         public async Task<ActionResult<ApiResponse<ProjectAdminResponse>>> DeleteProject(Guid id)
         {
@@ -175,6 +200,10 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Get all projects as user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("api/projects/")]
         public async Task<ActionResult<ApiResponse<List<ProjectUserResponse>>>> GetUserProjects()
         {
@@ -197,6 +226,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Get project by ID as user
+        /// </summary>
+        /// <param name="id">Project ID</param>
+        /// <returns></returns>
         [HttpGet("api/projects/{id}")]
         public async Task<ActionResult<ApiResponse<ProjectUserResponse>>> GetUserProject(Guid id)
         {
@@ -222,6 +256,12 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Update project by ID as user
+        /// </summary>
+        /// <param name="id">Project ID</param>
+        /// <param name="projectReq">See schema</param>
+        /// <returns></returns>
         [HttpPut("api/projects/{id}")]
         public async Task<ActionResult<ApiResponse<ProjectUserResponse>>> PutUserProject(Guid id, ProjectUserPutRequest projectReq)
         {
@@ -252,6 +292,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Add new project as user
+        /// </summary>
+        /// <param name="projectReq"></param>
+        /// <returns></returns>
         [HttpPost("api/projects/")]
         public async Task<ApiResponse<ProjectUserResponse>> PostUserProject(ProjectUserPostRequest projectReq)
         {
@@ -276,6 +321,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Delete project by ID as user
+        /// </summary>
+        /// <param name="id">Project ID</param>
+        /// <returns></returns>
         [HttpDelete("api/projects/{id}")]
         public async Task<ActionResult<ApiResponse<ProjectUserResponse>>> DeleteUserProject(Guid id)
         {

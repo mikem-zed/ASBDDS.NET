@@ -25,6 +25,10 @@ namespace ASBDDS.API.Controllers
         }
 
         // GET: api/Switches
+        /// <summary>
+        /// Get all switches
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<ApiResponse<List<SwitchAdminResponse>>>> GetSwitches()
         {
@@ -47,6 +51,11 @@ namespace ASBDDS.API.Controllers
         }
 
         // GET: api/Switches/5
+        /// <summary>
+        /// Get switch by ID
+        /// </summary>
+        /// <param name="id">Switch ID</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ApiResponse<SwitchAdminResponse>> GetSwitch(Guid id)
         {
@@ -73,6 +82,12 @@ namespace ASBDDS.API.Controllers
         }
 
         // PUT: api/Switches/id
+        /// <summary>
+        /// Update switch by ID
+        /// </summary>
+        /// <param name="id">Switch ID</param>
+        /// <param name="switchReq">See schema</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public async Task<ApiResponse<SwitchAdminResponse>> PutSwitch(Guid id, SwitchAdminPutRequest @switchReq)
         {
@@ -162,6 +177,11 @@ namespace ASBDDS.API.Controllers
 
         // POST: api/Switches
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Add new switch
+        /// </summary>
+        /// <param name="switchReq">See schema</param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ApiResponse<SwitchAdminResponse>> PostSwitch(SwitchAdminPostRequest @switchReq)
         {
@@ -210,9 +230,9 @@ namespace ASBDDS.API.Controllers
 
         // DELETE: api/Switches/5
         /// <summary>
-        /// Удаляем свитч
+        /// Delete switch
         /// </summary>
-        /// <param name="id">Свитч Айди</param>
+        /// <param name="id">Switch ID</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<ApiResponse<SwitchAdminResponse>> DeleteSwitch(Guid id)

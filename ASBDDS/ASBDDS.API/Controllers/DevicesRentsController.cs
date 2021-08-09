@@ -23,6 +23,10 @@ namespace ASBDDS.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Get all devices rents
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("api/devicesrents")]
         public async Task<ActionResult<ApiResponse<List<DeviceRentUserResponse>>>> GetUserDevicesRents()
         {
@@ -49,6 +53,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Get device rent by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("api/devicesrents/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> GetUserDeviceRent(Guid id)
         {
@@ -72,6 +81,12 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Update device rent
+        /// </summary>
+        /// <param name="id">Device rent ID</param>
+        /// <param name="devRentReq">See schema</param>
+        /// <returns></returns>
         [HttpPut("api/devicesrents/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> UpdateUserDeviceRent(Guid id, DeviceRentUserPutRequest devRentReq)
         {
@@ -100,6 +115,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Add new device rent
+        /// </summary>
+        /// <param name="devRentReq">See schema</param>
+        /// <returns></returns>
         [HttpPost("api/devicesrents/")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> CreateUserDeviceRent(DeviceRentUserPostRequest devRentReq)
         {
@@ -148,6 +168,11 @@ namespace ASBDDS.API.Controllers
             return resp;
         }
 
+        /// <summary>
+        /// Delete device rent by ID
+        /// </summary>
+        /// <param name="id">Device ID</param>
+        /// <returns></returns>
         [HttpDelete("api/devicesrents/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> DeleteUserDeviceRent(Guid id)
         {

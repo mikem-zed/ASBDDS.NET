@@ -34,6 +34,10 @@ namespace ASBDDS.API.Controllers
         }
 
         // GET: api/ApplicationUsers
+        /// <summary>
+        /// Get all application users
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("api/admin/users/")]
         public async Task<ApiResponse<List<UserAdminResponse>>> GetUsers()
         {
@@ -56,6 +60,11 @@ namespace ASBDDS.API.Controllers
         }
 
         // GET: api/ApplicationUsers/5
+        /// <summary>
+        /// Get user by ID
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns></returns>
         [HttpGet("api/admin/users/{id}")]
         public async Task<ApiResponse<UserAdminResponse>> GetUser(Guid id)
         {
@@ -82,6 +91,12 @@ namespace ASBDDS.API.Controllers
 
         // PUT: api/ApplicationUsers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Update user by ID
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <param name="reqUser">See schema</param>
+        /// <returns></returns>
         [HttpPut("api/admin/users/{id}")]
         public async Task<ApiResponse<UserAdminResponse>> PutUser(Guid id, UserAdminPutRequest reqUser)
         {
@@ -118,6 +133,11 @@ namespace ASBDDS.API.Controllers
 
         // POST: api/ApplicationUsers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Add new user
+        /// </summary>
+        /// <param name="reqUser">See schema</param>
+        /// <returns></returns>
         [HttpPost("api/admin/users/")]
         public async  Task<ApiResponse<UserAdminResponse>> PostUser(UserAdminPostRequest reqUser)
         {
@@ -157,6 +177,11 @@ namespace ASBDDS.API.Controllers
         }
 
         // DELETE: api/ApplicationUsers/5
+        /// <summary>
+        /// Delete user by ID
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns></returns>
         [HttpDelete("api/admin/users/{id}")]
         public async Task<ApiResponse> DisableUser(Guid id)
         {
@@ -193,6 +218,11 @@ namespace ASBDDS.API.Controllers
             //TODO: write Editor user.
         }
 
+        /// <summary>
+        /// Get new JWT token
+        /// </summary>
+        /// <param name="request">See schema</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("api/users/jwt")]
         public async Task<ActionResult<ApiResponse<TokenResponse>>> GenerateToken(LoginPostRequest request)

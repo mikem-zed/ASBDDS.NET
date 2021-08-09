@@ -25,6 +25,11 @@ namespace ASBDDS.API.Controllers
         {
             _context = context;
         }
+        /// <summary>
+        /// Get IPXE configuration file
+        /// </summary>
+        /// <param name="serial">Device serial number</param>
+        /// <returns></returns>
         [HttpGet("{serial}/ipxe.efi.cfg")]
         public async Task<FileResult> GetIPXEConfig(string serial)
         {

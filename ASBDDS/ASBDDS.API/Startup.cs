@@ -42,7 +42,12 @@ namespace ASBDDS.NET
                 .AddEntityFrameworkStores<DataDbContext>();
             services.AddTransient(provider => { return TFTPServer; });
             services.AddTransient(provider => { return DHCPServer; });
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(option =>  
+                {  
+                    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;  
+                    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;  
+  
+                })
                 .AddJwtBearer(options =>
                 {
                     options.RequireHttpsMetadata = false;
@@ -71,18 +76,40 @@ namespace ASBDDS.NET
             services.AddRazorPages();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASBDDS.NET", Version = "v1" });
+                c.SwaggerDoc(
+                    "v1",
+                    new OpenApiInfo
+                    {
+                        Title = "ASBDDS.NET",
+                        Version = "v1"});
                 var filePathShared = Path.Combine(System.AppContext.BaseDirectory, "ASBDDS.Shared.xml");
                 var filePathApi = Path.Combine(System.AppContext.BaseDirectory, "ASBDDS.API.xml");
                 c.IncludeXmlComments(filePathShared);
                 c.IncludeXmlComments(filePathApi);
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-                    In = ParameterLocation.Header, 
-                    Description = "Please insert JWT with Bearer into field",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey 
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()  
+                {  
+                    Name = "Authorization",  
+                    Type = SecuritySchemeType.ApiKey,  
+                    Scheme = "Bearer",  
+                    BearerFormat = "JWT",  
+                    In = ParameterLocation.Header,  
+                    Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",  
                 });
-
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement  
+                {  
+                    {  
+                        new OpenApiSecurityScheme  
+                        {  
+                            Reference = new OpenApiReference  
+                            {  
+                                Type = ReferenceType.SecurityScheme,  
+                                Id = "Bearer"  
+                            }  
+                        },  
+                        new string[] {}  
+  
+                    }  
+                });
             });
         }
 
@@ -102,6 +129,8 @@ namespace ASBDDS.NET
                 app.UseHsts();
             }
 
+            app.UseAuthorization();
+            app.UseAuthentication();
             //app.UseSwagger();
             //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASBDDS.NET v1"));
 

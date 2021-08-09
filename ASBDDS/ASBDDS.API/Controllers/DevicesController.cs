@@ -91,7 +91,7 @@ namespace ASBDDS.API.Controllers
         /// Update device by ID
         /// </summary>
         /// <param name="id">Device ID</param>
-        /// <param name="deviceReq"></param>
+        /// <param name="deviceReq">See schema</param>
         /// <returns></returns>
         [HttpPut("api/admin/devices/{id}")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PutDevice(Guid id, DeviceAdminPutRequest @deviceReq)
@@ -142,7 +142,7 @@ namespace ASBDDS.API.Controllers
         /// <summary>
         /// Add new device
         /// </summary>
-        /// <param name="deviceReq"></param>
+        /// <param name="deviceReq">See schema</param>
         /// <returns></returns>
         [HttpPost("api/admin/devices/")]
         public async Task<ActionResult<ApiResponse<DeviceAdminResponse>>> PostDevice(DeviceAdminPostRequest @deviceReq)

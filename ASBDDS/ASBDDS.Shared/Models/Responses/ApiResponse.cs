@@ -7,8 +7,9 @@ namespace ASBDDS.Shared.Models.Responses
     public class ResponseStatus
     {
         /// <summary>
-        /// Response code
-        /// 0 -> OK
+        /// Response code:
+        /// 0 -> OK;
+        /// 1 and more -> error;
         /// </summary>
         public int Code { get; set; } = 0;
         /// <summary>
