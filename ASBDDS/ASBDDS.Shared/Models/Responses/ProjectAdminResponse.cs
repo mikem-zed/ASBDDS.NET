@@ -7,6 +7,7 @@ namespace ASBDDS.Shared.Models.Responses
 {
     public class DeviceLimitResponse
     {
+        public string Manufacturer { get; set; }
         public string Model { get; set; }
         public int Count { get; set; }
 
@@ -19,6 +20,7 @@ namespace ASBDDS.Shared.Models.Responses
         {
             Model = deviceLimit.Model;
             Count = deviceLimit.Count;
+            Manufacturer = deviceLimit.Manufacturer;
         }
     }
 
@@ -29,6 +31,7 @@ namespace ASBDDS.Shared.Models.Responses
         public int DefaultVlan { get; set; }
         public bool AllowCustomBootloaders { get; set; }
         public List<DeviceLimitResponse> DeviceLimits { get; set; }
+        public bool Disabled { get; set; }
 
         public ProjectAdminResponse() { }
 
@@ -38,6 +41,7 @@ namespace ASBDDS.Shared.Models.Responses
             Name = project.Name;
             DefaultVlan = project.DefaultVlan;
             AllowCustomBootloaders = project.AllowCustomBootloaders;
+            Disabled = project.Disabled;
             DeviceLimits = new List<DeviceLimitResponse>();
             foreach (var deviceLimit in project.ProjectDeviceLimits)
             {

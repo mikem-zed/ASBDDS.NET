@@ -6,9 +6,9 @@
 @using System.Text
 @inject HttpClient httpClient
 
-<MudDialog DisableSidePadding="true">
+<MudDialog  DisableSidePadding="true">
     <DialogContent>
-        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
+        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 600px; overflow-y: scroll">
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@projectAdminPostRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
@@ -19,14 +19,15 @@
             <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@projectAdminPostRequest.DefaultVlan" Label="Default Vlan" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudDivider Class="mt-2 mb-1"> Ports </MudDivider>
-
+            <MudDivider Class="mt-2 mb-1"/>
+            <b>Devices limits</b>
             @foreach (var devLimit in projectAdminPostRequest.ProjectDeviceLimits)
             {
                 <MudItem xs="12" Class="d-flex flex-row">
-                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Model" Label="Device model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Count" Label="Device count" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeleteDevice(devLimit))" />
+                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Count" Label="Count" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeleteDevice(devLimit))"/>
                 </MudItem>
             }
             <MudIconButton Class="d-flex flex-row my-n1" Icon="@Icons.Material.Rounded.Add" OnClick="@AddPort" Color="Color.Success" aria-label="add"></MudIconButton>

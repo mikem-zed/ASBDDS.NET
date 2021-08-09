@@ -87,17 +87,12 @@ namespace ASBDDS.API.Controllers
                 project.Name = projectReq.Name;
                 project.DefaultVlan = projectReq.DefaultVlan;
                 project.AllowCustomBootloaders = projectReq.AllowCustomBootloaders;
+                project.Disabled = projectReq.Disabled;
 
                 project.ProjectDeviceLimits.Clear();
                 foreach(var deviceLimit in projectReq.ProjectDeviceLimits)
                 {
-                    var _deviceLimit = new ProjectDeviceLimit()
-                    {
-                        Count = deviceLimit.Count,
-                        Model = deviceLimit.Model,
-                        Project = project
-                    };
-                    project.ProjectDeviceLimits.Add(_deviceLimit);
+                    project.ProjectDeviceLimits.Add(new ProjectDeviceLimit(deviceLimit, project));
                 }
 
                 _context.Entry(project).State = EntityState.Modified;
@@ -129,13 +124,7 @@ namespace ASBDDS.API.Controllers
 
                 foreach(var deviceLimit in projectReq.ProjectDeviceLimits)
                 {
-                    var _deviceLimit = new ProjectDeviceLimit()
-                    {
-                        Count = deviceLimit.Count,
-                        Model = deviceLimit.Model,
-                        Project = project
-                    };
-                    project.ProjectDeviceLimits.Add(_deviceLimit);
+                    project.ProjectDeviceLimits.Add(new ProjectDeviceLimit(deviceLimit, project));
                 }
 
                 _context.Projects.Add(project);
@@ -190,9 +179,9 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<List<ProjectUserResponse>>();
             try
             {
-                var projects = await _context.Projects.ToListAsync();
+                var activeProjects = await _context.Projects.Where(p => !p.Disabled).ToListAsync();
                 var _projects = new List<ProjectUserResponse>();
-                foreach (var project in projects)
+                foreach (var project in activeProjects)
                 {
                     _projects.Add(new ProjectUserResponse(project));
                 }

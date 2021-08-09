@@ -1,0 +1,79 @@
+﻿@using ASBDDS.Shared.Models.Requests
+@using ASBDDS.Shared.Models.Responses
+@using ASBDDS.Shared.Helpers
+@using Newtonsoft.Json
+@using System.Text
+@inject HttpClient httpClient
+
+<MudDialog DisableSidePadding="true">
+    <DialogContent>
+        <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 600px; overflow-y: scroll">
+            <MudItem xs="12">
+                <MudTextField  Class="my-2" ReadOnly="true" @bind-Value="@User.UserName" Label="User name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@_userAdminPutRequest.Email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@_userAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Class="my-2" @bind-Value="@_userAdminPutRequest.LastName" Label="Last name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+            </MudItem>
+            @* <MudItem xs="12"> *@
+            @*     <MudTextField Class="my-2" @bind-Value="@_userAdminPutRequest.Password" Label="Password" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField> *@
+            @* </MudItem> *@
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Update">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+<SnackBars @ref="_snackBars"></SnackBars>
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public UserAdminResponse User { get; set; } = new UserAdminResponse();
+
+    private UserAdminPutRequest _userAdminPutRequest;
+    private UserAdminResponse _userAdminResponse;
+    private Task<HttpResponseMessage> httpResp;
+    private SnackBars _snackBars;
+
+    void Cancel() => MudDialog.Cancel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userAdminPutRequest = new UserAdminPutRequest();
+        _userAdminPutRequest.Id = User.Id;
+        _userAdminPutRequest.Name = User.Name;
+        _userAdminPutRequest.LastName = User.LastName;
+        _userAdminPutRequest.Email = User.Email;
+        _userAdminPutRequest.Disabled = User.Disabled;
+    }
+
+    private async void CreateCallback()
+    {
+        var res = httpResp.Result;
+        var bodyStr = await res.Content.ReadAsStringAsync();
+        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceAdminPutRequest>>(bodyStr);
+        if (respBodyObj.Status.Code != 0)
+        {
+            _snackBars.ShowError(respBodyObj.Status.Message);
+        }
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Update()
+    {
+        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/admin/users/" + User.Id);
+        var json = JsonConvert.SerializeObject(_userAdminPutRequest);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        httpRequest.Content = data;
+
+        httpResp = httpClient.SendAsync(httpRequest);
+        httpResp.ContinueWith(p => CreateCallback());
+    }
+}

@@ -9,7 +9,7 @@ namespace ASBDDS.Shared.Models.Requests
         public string Model { get; set; }
         public string Manufacturer { get; set; }
         public string Name { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? CreatorId { get; set; }
         public Guid ProjectId { get; set; }
         public string IPXEUrl { get; set; }
     }

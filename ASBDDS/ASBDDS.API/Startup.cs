@@ -1,3 +1,4 @@
+using System;
 using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.API.Models;
 using ASBDDS.API.Servers.TFTP;
@@ -10,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using ASBDDS.API.Servers.DHCP;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ASBDDS.NET
 {
@@ -22,7 +25,7 @@ namespace ASBDDS.NET
             TFTPServer = new TFTPServer();
             TFTPServer.Start();
             DHCPServer = new DHCPServer(Configuration.GetValue<string>("Networking:IP"));
-            DHCPServer.Start();
+            //DHCPServer.Start();
         }
 
         public IConfiguration Configuration { get; }
@@ -33,11 +36,37 @@ namespace ASBDDS.NET
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DataDbConnection"),
-                    x => x.MigrationsAssembly("ASBDDS.API")));
+                x => x.MigrationsAssembly("ASBDDS.API")));
             services.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<DataDbContext>();
             services.AddTransient(provider => { return TFTPServer; });
             services.AddTransient(provider => { return DHCPServer; });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        // укзывает, будет ли валидироваться издатель при валидации токена
+                        ValidateIssuer = true,
+                        // строка, представляющая издателя
+                        ValidIssuer = AuthOptions.ISSUER,
+ 
+                        // будет ли валидироваться потребитель токена
+                        ValidateAudience = true,
+                        // установка потребителя токена
+                        ValidAudience = AuthOptions.AUDIENCE,
+                        // будет ли валидироваться время существования
+                        ValidateLifetime = true,
+ 
+                        // установка ключа безопасности
+                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                        // валидация ключа безопасности
+                        ValidateIssuerSigningKey = true,
+                    };
+                });
+            
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSwaggerGen(c =>
@@ -81,6 +110,8 @@ namespace ASBDDS.NET
                 adminPanel.UseBlazorFrameworkFiles("/admin");
                 adminPanel.UseStaticFiles("/admin");
                 adminPanel.UseRouting();
+                adminPanel.UseAuthentication();
+                adminPanel.UseAuthorization();
                 adminPanel.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
@@ -96,6 +127,8 @@ namespace ASBDDS.NET
                 userPanel.UseSwagger();
                 userPanel.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASBDDS.NET v1"));
                 userPanel.UseRouting();
+                userPanel.UseAuthentication();
+                userPanel.UseAuthorization();
                 userPanel.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();

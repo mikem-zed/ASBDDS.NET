@@ -1,0 +1,132 @@
+﻿@page "/users"
+@using System.Net.Http.Json
+@using ASBDDS.Shared.Models.Responses
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+
+<MudTable Items="@_users" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<UserAdminResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Users List</MudText>
+        <MudIconButton Class="float-left" Icon="@Icons.Material.Rounded.Add" Color="Color.Success" OnClick="@ShowCreateDialog" aria-label="add"></MudIconButton>
+        <MudText Class="small">Add User</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Created</MudTh>
+        <MudTh>User name</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Last name</MudTh>
+        <MudTh>Disabled</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Created">@context.Created.ToLocalTime()</MudTd>
+        <MudTd DataLabel="UserName">@context.UserName</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="LastName">@context.LastName</MudTd>
+        <MudTd DataLabel="Disabled">@context.Disabled</MudTd>
+        <MudTd Style="white-space: nowrap; width: 1%;" DataLabel="Options">
+            <MudMenu Label="Options" Size="Size.Small" Dense="true" FullWidth="true" Direction="Direction.Start">
+                <MudMenuItem OnClick="@(() => ShowUpdateDialog(context))">Edit</MudMenuItem>
+                <MudMenuItem OnClick="@(() => DeleteSwitch(context))">Disable</MudMenuItem>
+            </MudMenu>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+</MudTable>
+<SnackBars @ref="_snackBars"></SnackBars>
+@code {
+    private bool _loading;
+    private bool dense = true;
+    private bool hover = true;
+    private bool striped = true;
+    private bool bordered = true;
+    private string searchString1 = "";
+    private string searchString2 = "";
+    private UserAdminResponse selectedItem1 = null;
+    private UserAdminResponse selectedItem2 = null;
+    private SnackBars _snackBars;
+
+    private IEnumerable<UserAdminResponse> _users = new List<UserAdminResponse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateTableData();
+    }
+
+    private async Task<int> UpdateTableData(bool StateChanged = false)
+    {
+        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<UserAdminResponse>>>("api/admin/users/");
+        _users = responseBody.Data;
+
+        _loading = false;
+        if (StateChanged) StateHasChanged();
+        return 0;
+    }
+
+    private async void ShowCreateDialog()
+    {
+        var dialog = DialogService.Show<UserCreateDialog>("Create User");
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            await UpdateTableData(true);
+        }
+    }
+
+    private async void ShowUpdateDialog(UserAdminResponse user)
+    {
+        var parameters = new DialogParameters { ["User"] = user };
+        var dialog = DialogService.Show<UserUpdateDialog>("Edit User", parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            await UpdateTableData(true);
+        }
+    }
+
+    private async void DeleteSwitch(UserAdminResponse user)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("EntityName", "user");
+
+        var result = await DialogService.Show<DeleteConfirmDialog>("Delete", parameters).Result;
+
+        if (!result.Cancelled)
+        {
+            var httpResponse = await httpClient.DeleteAsync("api/admin/users/" + @user.Id);
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<SwitchAdminResponse>>();
+                if (res.Result.Status.Code != 0)
+                {
+                    _snackBars.ShowError(res.Result.Status.Message);
+                }
+                else
+                {
+                    await UpdateTableData(true);
+                }
+            }
+        }
+    }
+
+    private bool FilterFunc1(UserAdminResponse user) => FilterFunc(user, searchString1);
+
+    private bool FilterFunc(UserAdminResponse user, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (user.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (user.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (user.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (user.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

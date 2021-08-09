@@ -10,6 +10,7 @@ namespace ASBDDS.Shared.Models.Requests
         public string Name { get; set; }
         public int DefaultVlan { get; set; }
         public bool AllowCustomBootloaders { get; set; }
+        public bool Disabled { get; set; }
         public virtual List<DeviceLimitResponse> ProjectDeviceLimits { get; set; }
     }
 }

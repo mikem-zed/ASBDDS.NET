@@ -10,7 +10,7 @@ namespace ASBDDS.Shared.Models.Responses
         private Device device { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Guid UserId { get; set; }
+        public Guid CreatorId { get; set; }
         public Guid ProjectId { get; set; }
         public DateTime Created { get; set; }
         public DateTime? Closed { get; set; }
@@ -23,11 +23,11 @@ namespace ASBDDS.Shared.Models.Responses
             device = deviceRent.Device;
             Id = deviceRent.Id;
             Name = deviceRent.Name;
-            UserId = deviceRent.UserId;
+            CreatorId = deviceRent.Creator.Id;
             ProjectId = deviceRent.Project.Id;
             Created = deviceRent.Created;
             Closed = deviceRent.Closed;
-            IPXEUrl = deviceRent.IPXEUrl;
+            IPXEUrl = deviceRent.IpxeUrl;
             Serial = deviceRent.Device.Serial;
             MacAddress = deviceRent.Device.MacAddress;
         }

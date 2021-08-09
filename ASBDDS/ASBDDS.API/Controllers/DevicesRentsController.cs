@@ -124,8 +124,8 @@ namespace ASBDDS.API.Controllers
                     Name = devRentReq.Name,
                     Device = freeDevice,
                     Project = project,
-                    IPXEUrl = devRentReq.IPXEUrl,
-                    UserId = devRentReq.UserId
+                    IpxeUrl = devRentReq.IPXEUrl
+                    // TODO: creator
                 };
 
                 _context.DeviceRents.Add(deviceRent);
