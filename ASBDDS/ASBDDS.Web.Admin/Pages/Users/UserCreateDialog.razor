@@ -1,10 +1,7 @@
 ﻿@using ASBDDS.Shared.Models.Requests
 @using ASBDDS.Shared.Models.Responses
-@using ASBDDS.Shared.Models.Database.DataDb
 @using Newtonsoft.Json
-@using ASBDDS.Shared.Helpers
-@using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog  DisableSidePadding="true">
     <DialogContent>
@@ -53,21 +50,23 @@
         var res = httpResp.Result;
         var bodyStr = await res.Content.ReadAsStringAsync();
         var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<UserAdminPostRequest>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
         {
             _snackBars.ShowError(respBodyObj.Status.Message);
         }
         MudDialog.Close(DialogResult.Ok(true));
     }
 
-    private void Create()
+    private async void Create()
     {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "api/admin/users");
-        var json = JsonConvert.SerializeObject(_userAdminPostRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        var apiResp = await httpClient.Post<ApiResponse<UserAdminPostRequest>>("api/admin/users/", _userAdminPostRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
+        {
+            if(apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
+        }
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }

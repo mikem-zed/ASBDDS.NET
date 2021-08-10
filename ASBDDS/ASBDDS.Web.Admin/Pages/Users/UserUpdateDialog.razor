@@ -1,9 +1,7 @@
 ﻿@using ASBDDS.Shared.Models.Requests
 @using ASBDDS.Shared.Models.Responses
-@using ASBDDS.Shared.Helpers
 @using Newtonsoft.Json
-@using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
@@ -66,14 +64,17 @@
         MudDialog.Close(DialogResult.Ok(true));
     }
 
-    private void Update()
+    private async void Update()
     {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/admin/users/" + User.Id);
-        var json = JsonConvert.SerializeObject(_userAdminPutRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        var apiResp = await httpClient.Put<ApiResponse<DeviceAdminPutRequest>>("api/admin/users/" + User.Id, _userAdminPutRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
+        {
+            if(apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
+        }
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }

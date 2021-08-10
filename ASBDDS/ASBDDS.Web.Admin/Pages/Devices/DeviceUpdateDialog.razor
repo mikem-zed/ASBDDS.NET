@@ -3,15 +3,15 @@
 @using ASBDDS.Shared.Helpers
 @using Newtonsoft.Json
 @using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
         <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@deviceAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_deviceAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudSelect Class="my-2" @bind-Value="@deviceAdminPutRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelect Class="my-2" @bind-Value="@_deviceAdminPutRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
                 @{
                     var deviceHelper = new DeviceHelper();
                     foreach (var manufacturer in deviceHelper.GetManufacturers())
@@ -20,12 +20,12 @@
                     }
                 }
             </MudSelect>
-            <MudSelect Class="my-2" @bind-Value="@deviceAdminPutRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelect Class="my-2" @bind-Value="@_deviceAdminPutRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
                 @{
-                    if (deviceAdminPutRequest.Manufacturer != "")
+                    if (_deviceAdminPutRequest.Manufacturer != "")
                     {
                         var deviceHelper = new DeviceHelper();
-                        var models = deviceHelper.GetModels(deviceAdminPutRequest.Manufacturer);
+                        var models = deviceHelper.GetModels(_deviceAdminPutRequest.Manufacturer);
                         foreach (var model in models)
                         {
                             var modelName = deviceHelper.GetModel(model);
@@ -35,12 +35,12 @@
                 }
             </MudSelect>
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@deviceAdminPutRequest.Serial" Label="Serial" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_deviceAdminPutRequest.Serial" Label="Serial" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@deviceAdminPutRequest.MacAddress" Label="Mac Address" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_deviceAdminPutRequest.MacAddress" Label="Mac Address" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudSelect Class="my-2" @bind-Text="@selectedSwitchPortName" @bind-Value="@deviceAdminPutRequest.SwitchPortId" Label="Port type" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelect Class="my-2" @bind-Text="@selectedSwitchPortName" @bind-Value="@_deviceAdminPutRequest.SwitchPortId" Label="Port type" Variant="Variant.Outlined" Margin="Margin.Dense">
                 @foreach (var _switch in switches)
                 {
                     foreach (var port in _switch.Ports)
@@ -49,7 +49,7 @@
                         <MudSelectItem Value="@port.Id">@portFullName</MudSelectItem>
                     }
                 }
-                @if (Guid.Empty != deviceAdminPutRequest.SwitchPortId)
+                @if (Guid.Empty != _deviceAdminPutRequest.SwitchPortId)
                 {
 
                 }
@@ -68,8 +68,7 @@
 
     [Parameter] public DeviceAdminResponse _device { get; set; } = new DeviceAdminResponse();
 
-    private DeviceAdminPutRequest deviceAdminPutRequest;
-    private DeviceAdminResponse deviceAdminResponse;
+    private DeviceAdminPutRequest _deviceAdminPutRequest;
     private Task<HttpResponseMessage> httpResp;
     private List<SwitchAdminResponse> switches = new List<SwitchAdminResponse>();
     private string selectedSwitchPortName = "";
@@ -79,16 +78,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        deviceAdminPutRequest = new DeviceAdminPutRequest();
+        _deviceAdminPutRequest = new DeviceAdminPutRequest();
 
-        deviceAdminPutRequest.Name = _device.Name;
-        deviceAdminPutRequest.Model = _device.Model;
-        deviceAdminPutRequest.Manufacturer = _device.Manufacturer;
-        deviceAdminPutRequest.Serial = _device.Serial;
-        deviceAdminPutRequest.MacAddress = _device.MacAddress;
-        deviceAdminPutRequest.SwitchPortId = _device.SwitchPortId;
+        _deviceAdminPutRequest.Name = _device.Name;
+        _deviceAdminPutRequest.Model = _device.Model;
+        _deviceAdminPutRequest.Manufacturer = _device.Manufacturer;
+        _deviceAdminPutRequest.Serial = _device.Serial;
+        _deviceAdminPutRequest.MacAddress = _device.MacAddress;
+        _deviceAdminPutRequest.SwitchPortId = _device.SwitchPortId;
 
-        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<SwitchAdminResponse>>>("api/admin/switches/");
+        var responseBody = await httpClient.Get<ApiResponse<List<SwitchAdminResponse>>>("api/admin/switches/");
         switches = responseBody.Data;
         var @switch = switches.Where(s => s.Ports.Any(p => p.Id == _device.SwitchPortId)).FirstOrDefault();
         if (@switch != null)
@@ -97,26 +96,17 @@
         }
     }
 
-    private async void CreateCallback()
+    private async void Update()
     {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceAdminPutRequest>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
+        var apiResp = await httpClient.Put<ApiResponse<DeviceAdminPutRequest>>("api/admin/devices" + _device.Id, _deviceAdminPutRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
         {
-            _snackBars.ShowError(respBodyObj.Status.Message);
+            if(apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
         }
-        MudDialog.Close(DialogResult.Ok(true));
-    }
-
-    private void Update()
-    {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/admin/devices/" + _device.Id);
-        var json = JsonConvert.SerializeObject(deviceAdminPutRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }

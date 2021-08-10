@@ -18,11 +18,11 @@ namespace ASBDDS.Web.Admin
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
-
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress.Replace("admin/", "")) });
             builder.Services.AddMudServices();
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped(
+                sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress.Replace("admin/", "")) });
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IHttpService, HttpService>();
             builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
@@ -31,7 +31,7 @@ namespace ASBDDS.Web.Admin
             var authenticationService = host.Services.GetRequiredService<IAuthenticationService>();
             await authenticationService.Initialize();
 
-            await builder.Build().RunAsync();
+            await host.RunAsync();
         }
     }
 }

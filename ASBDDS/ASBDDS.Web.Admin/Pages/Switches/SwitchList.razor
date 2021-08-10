@@ -1,7 +1,6 @@
 ﻿@page "/switches"
-@using System.Net.Http.Json
 @using ASBDDS.Shared.Models.Responses
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 @inject IDialogService DialogService
 
 <MudTable Items="@Switches" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<SwitchAdminResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
@@ -102,7 +101,7 @@
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<SwitchAdminResponse>>>("api/admin/switches/");
+        var responseBody = await httpClient.Get<ApiResponse<List<SwitchAdminResponse>>>("api/admin/switches/");
         ShowPorts.Clear();
         foreach (var element in responseBody.Data)
         {
@@ -152,19 +151,18 @@
 
         if (!result.Cancelled)
         {
-            var httpResponse = await httpClient.DeleteAsync("api/admin/switches/" + @switch.Id);
-            if (httpResponse.IsSuccessStatusCode)
+            var httpResponseBody = await httpClient.Delete<ApiResponse<SwitchAdminResponse>>("api/admin/switches/" + @switch.Id, null);
+            if (httpResponseBody == null || httpResponseBody.Status.Code != 0)
             {
-                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<SwitchAdminResponse>>();
-                if (res.Result.Status.Code != 0)
-                {
-                    _snackBars.ShowError(res.Result.Status.Message);
-                }
+                if (httpResponseBody != null)
+                    _snackBars.ShowError(httpResponseBody.Status.Message);
                 else
-                {
-                    _loading = true;
-                    await UpdateTableData(true);
-                }
+                    _snackBars.ShowError("Unhandled error");
+            }
+            else
+            {
+                _loading = true;
+                await UpdateTableData(true);
             }
         }
     }

@@ -70,12 +70,6 @@
         NavigationManager.NavigateTo("/");
     }
 
-    void OnSelect(ChangeEventArgs e)
-    {
-        var tt = e.Value.ToString();
-        Console.WriteLine("The selected country is : " + tt);
-    }
-
     protected override async Task OnInitializedAsync()
     {
         var apiResp = await _httpClient.Get<ApiResponse<List<ProjectUserResponse>>>("api/projects/");

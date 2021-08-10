@@ -1,7 +1,7 @@
 ﻿@page "/devices"
 @using System.Net.Http.Json
 @using ASBDDS.Shared.Models.Responses
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 @inject IDialogService DialogService
 
 <MudTable Items="@Devices" Dense="@dense" Hover="@hover" Loading="@_loading" LoadingProgressColor="Color.Info" Bordered="@bordered" Striped="@striped" Filter="new Func<DeviceAdminResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
@@ -70,15 +70,12 @@
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<DeviceAdminResponse>>>("api/admin/devices/");
+        var responseBody = await httpClient.Get<ApiResponse<List<DeviceAdminResponse>>>("api/admin/devices/");
 
         Devices = responseBody.Data;
 
         _loading = false;
-
-        if (StateChanged)
-            StateHasChanged();
-
+        if (StateChanged) StateHasChanged();
         return 0;
     }
 
@@ -114,19 +111,18 @@
 
         if (!result.Cancelled)
         {
-            _loading = true;
-            var httpResponse = await httpClient.DeleteAsync("api/admin/devices/" + device.Id);
-            if (httpResponse.IsSuccessStatusCode)
+            var httpResponseBody = await httpClient.Delete<ApiResponse<DeviceAdminResponse>>("api/admin/devices/" + device.Id, null);
+            if (httpResponseBody == null || httpResponseBody.Status.Code != 0)
             {
-                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<DeviceAdminResponse>>();
-                if (res.Result.Status.Code != 0)
-                {
-                    _snackBars.ShowError(res.Result.Status.Message);
-                }
+                if (httpResponseBody != null)
+                    _snackBars.ShowError(httpResponseBody.Status.Message);
                 else
-                {
-                    await UpdateTableData(true);
-                }
+                    _snackBars.ShowError("Unhandled error");
+            }
+            else
+            {
+                _loading = true;
+                await UpdateTableData(true);
             }
         }
     }
@@ -134,36 +130,37 @@
     private async void PowerOffDevice(DeviceAdminResponse device)
     {
         _loading = true;
-        var httpResponse = await httpClient.PostAsync("api/admin/devices/" + device.Id + "/poweroff", null);
-        if (httpResponse.IsSuccessStatusCode)
+        var httpResponseBody = await httpClient.Post<ApiResponse<DeviceAdminResponse>>("api/admin/devices/" + device.Id + "/poweroff", null);
+        if (httpResponseBody == null || httpResponseBody.Status.Code != 0)
         {
-            var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<DeviceAdminResponse>>();
-            if (res.Result.Status.Code != 0)
-            {
-                _snackBars.ShowError(res.Result.Status.Message);
-            }
+            if (httpResponseBody != null)
+                _snackBars.ShowError(httpResponseBody.Status.Message);
             else
-            {
-                await UpdateTableData(true);
-            }
+                _snackBars.ShowError("Unhandled error");
+        }
+        else
+        {
+            _loading = true;
+            await UpdateTableData(true);
         }
     }
+    
 
     private async void PowerOnDevice(DeviceAdminResponse device)
     {
         _loading = true;
-        var httpResponse = await httpClient.PostAsync("api/admin/devices/" + device.Id + "/poweron", null);
-        if (httpResponse.IsSuccessStatusCode)
+        var httpResponseBody = await httpClient.Post<ApiResponse<DeviceAdminResponse>>("api/admin/devices/" + device.Id + "/poweron", null);
+        if (httpResponseBody == null || httpResponseBody.Status.Code != 0)
         {
-            var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<DeviceAdminResponse>>();
-            if (res.Result.Status.Code != 0)
-            {
-                _snackBars.ShowError(res.Result.Status.Message);
-            }
+            if (httpResponseBody != null)
+                _snackBars.ShowError(httpResponseBody.Status.Message);
             else
-            {
-                await UpdateTableData(true);
-            }
+                _snackBars.ShowError("Unhandled error");
+        }
+        else
+        {
+            _loading = true;
+            await UpdateTableData(true);
         }
     }
 

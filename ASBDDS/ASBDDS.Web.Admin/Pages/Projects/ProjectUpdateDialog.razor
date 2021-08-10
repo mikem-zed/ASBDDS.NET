@@ -4,27 +4,27 @@
 @using Newtonsoft.Json
 @using ASBDDS.Shared.Helpers
 @using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
         <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 600px; overflow-y: scroll">
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_projectAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.AllowCustomBootloaders" Label="Allow Custom Boot Loaders" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_projectAdminPutRequest.AllowCustomBootloaders" Label="Allow Custom Boot Loaders" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudDivider Class="mt-2 mb-1" />
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.DefaultVlan" Label="Default Vlan" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_projectAdminPutRequest.DefaultVlan" Label="Default Vlan" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@projectAdminPutRequest.Disabled" Label="Disabled" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_projectAdminPutRequest.Disabled" Label="Disabled" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             <MudDivider Class="mt-2 mb-1"/>
             <b>Devices limits</b>
-            @foreach (var devLimit in projectAdminPutRequest.ProjectDeviceLimits)
+            @foreach (var devLimit in _projectAdminPutRequest.ProjectDeviceLimits)
             {
                 <MudItem xs="12" Class="d-flex flex-row">
                     <MudTextField Class="mr-1" @bind-Value="@devLimit.Manufacturer" Label="Device manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
@@ -48,7 +48,7 @@
 
     [Parameter] public ProjectAdminResponse _project { get; set; } = new ProjectAdminResponse();
 
-    private ProjectAdminPutRequest projectAdminPutRequest;
+    private ProjectAdminPutRequest _projectAdminPutRequest;
     private ProjectAdminResponse projectAdminResponse;
     private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
@@ -57,46 +57,37 @@
 
     protected override async Task OnInitializedAsync()
     {
-        projectAdminPutRequest = new ProjectAdminPutRequest();
-        projectAdminPutRequest.ProjectDeviceLimits = new List<DeviceLimitResponse>();
+        _projectAdminPutRequest = new ProjectAdminPutRequest();
+        _projectAdminPutRequest.ProjectDeviceLimits = new List<DeviceLimitResponse>();
 
-        projectAdminPutRequest.Name = _project.Name;
-        projectAdminPutRequest.AllowCustomBootloaders = _project.AllowCustomBootloaders;
-        projectAdminPutRequest.DefaultVlan = _project.DefaultVlan;
-        projectAdminPutRequest.ProjectDeviceLimits = _project.DeviceLimits;
+        _projectAdminPutRequest.Name = _project.Name;
+        _projectAdminPutRequest.AllowCustomBootloaders = _project.AllowCustomBootloaders;
+        _projectAdminPutRequest.DefaultVlan = _project.DefaultVlan;
+        _projectAdminPutRequest.ProjectDeviceLimits = _project.DeviceLimits;
 
     }
 
     private void AddPort()
     {
-        projectAdminPutRequest.ProjectDeviceLimits.Add(new DeviceLimitResponse());
+        _projectAdminPutRequest.ProjectDeviceLimits.Add(new DeviceLimitResponse());
     }
 
     private void DeleteDevice(DeviceLimitResponse devLimit)
     {
-        projectAdminPutRequest.ProjectDeviceLimits.Remove(devLimit);
+        _projectAdminPutRequest.ProjectDeviceLimits.Remove(devLimit);
     }
 
-    private async void CreateCallback()
+    private async void Create()
     {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<ProjectAdminPutRequest>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
+        var apiResp = await httpClient.Put<ApiResponse<ProjectAdminPutRequest>>("api/admin/projects/" + _project.Id, _projectAdminPutRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
         {
-            _snackBars.ShowError(respBodyObj.Status.Message);
+            if(apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
         }
-        MudDialog.Close(DialogResult.Ok(true));
-    }
-
-    private void Create()
-    {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/admin/projects/" + _project.Id);
-        var json = JsonConvert.SerializeObject(projectAdminPutRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }
