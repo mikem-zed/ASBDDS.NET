@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using ASBDDS.Web.Client.Services;
+using ASBDDS.Web.Shared.Interfaces;
+using ASBDDS.Web.Shared.Providers;
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ASBDDS.Web.Admin
 {
@@ -20,6 +21,15 @@ namespace ASBDDS.Web.Admin
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress.Replace("admin/", "")) });
             builder.Services.AddMudServices();
+            builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<IHttpService, HttpService>();
+            builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+            var host = builder.Build();
+            
+            var authenticationService = host.Services.GetRequiredService<IAuthenticationService>();
+            await authenticationService.Initialize();
 
             await builder.Build().RunAsync();
         }

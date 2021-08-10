@@ -1,6 +1,6 @@
 ﻿namespace ASBDDS.Shared.Models.Requests
 {
-    public class LoginPostRequest
+    public class TokenRequest
     {
         /// <summary>
         /// Username for login

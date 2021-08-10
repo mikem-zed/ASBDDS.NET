@@ -3,6 +3,11 @@
         <MudText Typo="Typo.h6" Class="px-4">Admin</MudText>
         <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Authorized</MudText>
         <MudDivider Class="my-2" />
+        <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudNavLink Href="/admin" Icon="@Icons.Filled.AdminPanelSettings">Admin Panel</MudNavLink>
+                </Authorized>
+        </AuthorizeView>
         <MudNavLink Href="#" Icon="@Icons.Filled.Dashboard">Dashboard</MudNavLink>
         <MudNavLink Href="/devicesrents" Icon="@Icons.Filled.DevicesOther">Devices</MudNavLink>
         <MudNavGroup Title="Settings" Icon="@Icons.Filled.Settings" Expanded="false">

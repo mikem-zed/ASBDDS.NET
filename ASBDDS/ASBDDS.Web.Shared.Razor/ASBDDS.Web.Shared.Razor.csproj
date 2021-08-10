@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Login.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASBDDS.Web.Shared\ASBDDS.Web.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

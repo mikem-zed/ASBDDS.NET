@@ -1,21 +1,33 @@
 ﻿@inherits LayoutComponentBase
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
 
 <MudLayout>
     <MudThemeProvider />
     <MudDialogProvider />
     <MudSnackbarProvider />
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">ASBDDS Admin</MudText>
-        <MudSpacer />
-        @*<MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />*@
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
+     <MudText Typo="Typo.h5" Class="ml-3">ASBDDS Admin panel</MudText>
+    <AuthorizeView>
+        <Authorized>
+            <MudAppBar Elevation="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+                <MudText Typo="Typo.h5" Class="ml-3">ASBDDS Admin panel</MudText>
+                <MudSpacer />
+                <MudIconButton OnClick="Logout" Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" Edge="Edge.End" />
+            </MudAppBar>
+            <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+                <NavMenu />
+            </MudDrawer>
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+        </Authorized>
+        <NotAuthorized>
+            <MudContainer>
+               <Login/>
+            </MudContainer>
+        </NotAuthorized>
+    </AuthorizeView>
 </MudLayout>
 
 @code {
@@ -24,5 +36,11 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+    
+    private async void Logout()
+    {
+        await AuthenticationService.Logout();
+        NavigationManager.NavigateTo("/");
     }
 }

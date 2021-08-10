@@ -225,7 +225,7 @@ namespace ASBDDS.API.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("api/users/jwt")]
-        public async Task<ActionResult<ApiResponse<TokenResponse>>> GenerateToken(LoginPostRequest request)
+        public async Task<ActionResult<ApiResponse<TokenResponse>>> GenerateToken(TokenRequest request)
         {
             var resp = new ApiResponse<TokenResponse>();
             try
