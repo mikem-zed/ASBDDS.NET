@@ -39,8 +39,10 @@ namespace ASBDDS.Web.Shared.Providers
             var tokenResponse = await _localStorage.GetItemAsync<TokenResponse>("TokenResponse");
             if (tokenResponse == null)
                 return true;
-            
-            return tokenResponse.Expires > DateTime.UtcNow;
+
+            var expires = tokenResponse.Expires.ToUniversalTime();
+            var current = DateTime.UtcNow.ToUniversalTime();
+            return expires < current;
         }
 
         public void Notify()

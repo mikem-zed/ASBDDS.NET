@@ -53,8 +53,10 @@ namespace ASBDDS.Shared.Models.Responses
             device = deviceRent.Device;
             Id = deviceRent.Id;
             Name = deviceRent.Name;
-            CreatorId = deviceRent.Creator.Id;
-            ProjectId = deviceRent.Project.Id;
+            if (deviceRent.Creator != null)
+                CreatorId = deviceRent.Creator.Id;
+            if (deviceRent.Project != null)
+                ProjectId = deviceRent.Project.Id;
             Created = deviceRent.Created;
             Closed = deviceRent.Closed;
             IPXEUrl = deviceRent.IpxeUrl;

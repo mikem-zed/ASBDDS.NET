@@ -1,8 +1,10 @@
 ﻿@page "/projects"
 @using System.Net.Http.Json
 @using ASBDDS.Shared.Models.Responses
-@inject HttpClient httpClient
+@using Blazored.LocalStorage
+@inject IHttpService httpClient
 @inject IDialogService DialogService
+@inject ILocalStorageService _localStorageService
 
 <MudTable Items="@Projects" Dense="@dense" Hover="@hover" Loading="@_loading" Bordered="@bordered" Striped="@striped" Filter="new Func<ProjectUserResponse,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
     <ToolBarContent>
@@ -44,8 +46,6 @@
     private string searchString2 = "";
     private ProjectUserResponse selectedItem1 = null;
     private ProjectUserResponse selectedItem2 = null;
-    private HashSet<ProjectUserResponse>
-    selectedItems = new HashSet<ProjectUserResponse>();
     private SnackBars _snackBars;
 
     private IEnumerable<ProjectUserResponse> Projects = new List<ProjectUserResponse>();
@@ -57,7 +57,7 @@
 
     private async Task<int> UpdateTableData(bool StateChanged = false)
     {
-        var responseBody = await httpClient.GetFromJsonAsync<ApiResponse<List<ProjectUserResponse>>>("api/projects/");
+        var responseBody = await httpClient.Get<ApiResponse<List<ProjectUserResponse>>>("api/projects/");
 
         Projects = responseBody.Data;
 
@@ -79,7 +79,7 @@
 
     private async void ShowUpdateDialog(ProjectUserResponse project)
     {
-        var parameters = new DialogParameters { ["_project"] = project };
+        var parameters = new DialogParameters { ["Project"] = project };
         var dialog = DialogService.Show<ProjectUpdateDialog>("Edit Project", parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
@@ -98,19 +98,18 @@
         
         if (!result.Cancelled)
         {
-            var httpResponse = await httpClient.DeleteAsync("api/projects/" + project.Id);
-            if (httpResponse.IsSuccessStatusCode)
+            var httpResponseBody = await httpClient.Delete<ApiResponse<ProjectUserResponse>>("api/projects/" + project.Id, null);
+            if (httpResponseBody == null || httpResponseBody.Status.Code != 0)
             {
-                var res = httpResponse.Content.ReadFromJsonAsync<ApiResponse<ProjectUserResponse>>();
-                if(res.Result.Status.Code != 0)
-                {
-                    _snackBars.ShowError(res.Result.Status.Message);
-                }
+                if (httpResponseBody != null)
+                    _snackBars.ShowError(httpResponseBody.Status.Message);
                 else
-                {
-                    _loading = true;
-                    await UpdateTableData(true);
-                }
+                    _snackBars.ShowError("Unhandled error");
+            }
+            else
+            {
+                _loading = true;
+                await UpdateTableData(true);
             }
         }
     }

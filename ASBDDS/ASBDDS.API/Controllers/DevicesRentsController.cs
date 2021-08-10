@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Primitives;
+using ASBDDS.API.Models.Utils;
+using Microsoft.AspNetCore.Identity;
 
 namespace ASBDDS.API.Controllers
 {
@@ -17,10 +20,12 @@ namespace ASBDDS.API.Controllers
     public class DevicesRentsController : ControllerBase
     {
         private readonly DataDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DevicesRentsController(DataDbContext context)
+        public DevicesRentsController(DataDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -33,7 +38,15 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<List<DeviceRentUserResponse>>();
             try
             {
-                var devicesRents = await _context.DeviceRents
+                var project = await DbSearchHelper.FindProject(_context, Request);
+                if(project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
+
+                var devicesRents = await _context.DeviceRents.Where(dr => dr.Project == project && dr.Closed == null)
                     .Include(d => d.Device)
                     .Include(d => d.Project)
                     .Include(d => d.Creator)
@@ -64,7 +77,14 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var deviceRent = await _context.DeviceRents.FindAsync(id);
+                var project = await DbSearchHelper.FindProject(_context, Request);
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
+                var deviceRent = await _context.DeviceRents.Where(dr => dr.Project == project && dr.Closed == null && dr.Id == id).FirstOrDefaultAsync();
                 if(deviceRent == null)
                 {
                     resp.Status.Code = 1;
@@ -93,7 +113,15 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var deviceRent = await _context.DeviceRents.Include(r => r.Project ).Include(r => r.Device).Where(r => r.Id == id).FirstOrDefaultAsync();
+                var project = await DbSearchHelper.FindProject(_context, Request);
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
+                var deviceRent = await _context.DeviceRents.Where(r => r.Id == id && r.Project == project && r.Closed == null)
+                    .Include(r => r.Project).Include(r => r.Device).FirstOrDefaultAsync();
                 if (deviceRent == null)
                 {
                     resp.Status.Code = 1;
@@ -126,6 +154,14 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
+                var user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                var project = await DbSearchHelper.FindProject(_context, Request);
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
                 var devicesIdinRents = await _context.DeviceRents.Where(r => r.Closed == null).Select(r => r.Device.Id).ToListAsync();
                 var freeDevice = await _context.Devices
                     .Where(d => !devicesIdinRents.Contains(d.Id) && d.Manufacturer == devRentReq.Manufacturer && d.Model == devRentReq.Model)
@@ -138,21 +174,13 @@ namespace ASBDDS.API.Controllers
                     return resp;
                 }
 
-                var project = await _context.Projects.FindAsync(devRentReq.ProjectId);
-                if (project == null)
-                {
-                    resp.Status.Code = 1;
-                    resp.Status.Message = "project not found";
-                    return resp;
-                }
-
                 var deviceRent = new DeviceRent
                 {
                     Name = devRentReq.Name,
                     Device = freeDevice,
                     Project = project,
-                    IpxeUrl = devRentReq.IPXEUrl
-                    // TODO: creator
+                    IpxeUrl = devRentReq.IPXEUrl,
+                    Creator = user
                 };
 
                 _context.DeviceRents.Add(deviceRent);
@@ -179,7 +207,14 @@ namespace ASBDDS.API.Controllers
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var deviceRent = await _context.DeviceRents.Include(r => r.Project).Include(r => r.Device).Where(r => r.Id == id).FirstOrDefaultAsync();
+                var project = await DbSearchHelper.FindProject(_context, Request);
+                if (project == null)
+                {
+                    resp.Status.Code = 1;
+                    resp.Status.Message = "Project not found";
+                    return resp;
+                }
+                var deviceRent = await _context.DeviceRents.Where(r => r.Id == id && r.Closed == null && r.Project == project).Include(r => r.Project).Include(r => r.Device).FirstOrDefaultAsync();
                 if (deviceRent == null)
                 {
                     resp.Status.Code = 1;

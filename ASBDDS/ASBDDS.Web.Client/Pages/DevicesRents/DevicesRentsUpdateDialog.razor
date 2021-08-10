@@ -4,7 +4,7 @@
 @using Newtonsoft.Json
 @using ASBDDS.Shared.Helpers
 @using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
@@ -38,26 +38,17 @@
         devRentAdminPutRequest.Name = _deviceRent.Name;
     }
 
-    private async void CreateCallback()
+    private async void Create()
     {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceRentUserResponse>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
+        var apiResp = await httpClient.Put<ApiResponse<DeviceRentUserResponse>>("api/devicesrents/" + _deviceRent.Id, devRentAdminPutRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
         {
-            _snackBars.ShowError(respBodyObj.Status.Message);
+            if (apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
         }
-        MudDialog.Close(DialogResult.Ok(true));
-    }
-
-    private void Create()
-    {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/devicesrents/" + _deviceRent.Id);
-        var json = JsonConvert.SerializeObject(devRentAdminPutRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }

@@ -1,9 +1,10 @@
 ﻿@inherits LayoutComponentBase
-@using ASBDDS.Web.Shared.Interfaces
+@using ASBDDS.Shared.Models.Responses
+@using Blazored.LocalStorage
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
-
-
+@inject ILocalStorageService _localStorageService
+@inject IHttpService _httpClient
 <MudLayout>
     <MudThemeProvider />
     <MudDialogProvider />
@@ -14,6 +15,14 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
                 <MudText Typo="Typo.h5" Class="ml-3">ASBDDS Web</MudText>
                 <MudSpacer />
+                <MudSelect Style="background: #fff;" Class="my-2" @bind-Value="@_projectGuidChangeHandler" @bind-Text="@_selectedProjectName" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @{
+                        foreach (var project in _projectUserResponses)
+                        {
+                            <MudSelectItem Value="@project.Id">@project.Name</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
                 <MudIconButton OnClick="Logout" Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" Edge="Edge.End" />
             </MudAppBar>
             <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
@@ -33,15 +42,82 @@
 
 @code {
     bool _drawerOpen = true;
+    private IEnumerable<ProjectUserResponse> _projectUserResponses = new List<ProjectUserResponse>();
+    private ProjectUserResponse _currentProject = new ProjectUserResponse();
+    private string _selectedProjectName { get; set; }
+    private Guid _projectGuidChangeHandler
+    {
+        get
+        {
+            return _currentProject.Id;
+        }
+        set
+        {
+            OnProjectChange(value);
+            _currentProject.Id = value;
+        }
+    }
+
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
-    
+
     private async void Logout()
     {
         await AuthenticationService.Logout();
         NavigationManager.NavigateTo("/");
     }
+
+    void OnSelect(ChangeEventArgs e)
+    {
+        var tt = e.Value.ToString();
+        Console.WriteLine("The selected country is : " + tt);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var apiResp = await _httpClient.Get<ApiResponse<List<ProjectUserResponse>>>("api/projects/");
+        if (apiResp != null && apiResp.Status.Code == 0)
+        {
+            _projectUserResponses = apiResp.Data;
+            _currentProject = await _localStorageService.GetItemAsync<ProjectUserResponse>("CurrentProject");
+            if (_currentProject == null || _projectUserResponses.All(p => p.Id != _currentProject.Id))
+            {
+                var project = _projectUserResponses.FirstOrDefault();
+                if (project != null)
+                {
+                    _currentProject = new ProjectUserResponse() {Id = project.Id, Name = project.Name};
+                    await _localStorageService.SetItemAsync<ProjectUserResponse>("CurrentProject", _currentProject);
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                StateHasChanged();
+            }
+        }
+    }
+    private async void OnProjectChange(Guid id)
+    {
+        if (_currentProject.Id != null)
+        {
+            if (_projectUserResponses != null)
+            {
+                var apiResp = await _httpClient.Get<ApiResponse<List<ProjectUserResponse>>>("api/projects/");
+                if (apiResp != null && apiResp.Status.Code == 0)
+                {
+                    _projectUserResponses = apiResp.Data;
+                }
+            }
+            var project = _projectUserResponses.FirstOrDefault(p => p.Id == _currentProject.Id);
+            if (project != null)
+            {
+                await _localStorageService.SetItemAsync<ProjectUserResponse>("CurrentProject", _currentProject);
+                StateHasChanged();
+            }
+        }
+    }
+
 }

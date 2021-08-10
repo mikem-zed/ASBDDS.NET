@@ -19,15 +19,7 @@ namespace ASBDDS.Shared.Models.Requests
         /// </summary>
         public string Name { get; set; }
         /// <summary>
-        /// The ID of the user who created rent
-        /// </summary>
-        public Guid? CreatorId { get; set; }
-        /// <summary>
-        /// The project ID to which it is attached
-        /// </summary>
-        public Guid ProjectId { get; set; }
-        /// <summary>
-        /// Link to IPXE network bootloader
+        /// Link to IPXE cfg network bootloader
         /// </summary>
         public string IPXEUrl { get; set; }
     }

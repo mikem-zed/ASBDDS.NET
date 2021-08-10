@@ -4,13 +4,13 @@
 @using Newtonsoft.Json
 @using ASBDDS.Shared.Helpers
 @using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
         <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@projectUserPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_projectUserPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
             @*<MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@projectUserPutRequest." Label="Default Vlan" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
@@ -27,41 +27,30 @@
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
-    [Parameter] public ProjectUserResponse _project { get; set; } = new ProjectUserResponse();
+    [Parameter] public ProjectUserResponse Project { get; set; } = new ProjectUserResponse();
 
-    private ProjectUserPutRequest projectUserPutRequest;
-    private ProjectUserResponse projectUserResponse;
-    private Task<HttpResponseMessage> httpResp;
+    private ProjectUserPutRequest _projectUserPutRequest;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
     protected override async Task OnInitializedAsync()
     {
-        projectUserPutRequest = new ProjectUserPutRequest();
-        projectUserPutRequest.Name = _project.Name;
+        _projectUserPutRequest = new ProjectUserPutRequest();
+        _projectUserPutRequest.Name = Project.Name;
     }
 
-    private async void CreateCallback()
+    private async void Update()
     {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<ProjectUserPutRequest>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
+        var apiResp = await httpClient.Put<ApiResponse<ProjectUserPostRequest>>("api/projects/" + Project.Id, _projectUserPutRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
         {
-            _snackBars.ShowError(respBodyObj.Status.Message);
+            if(apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
         }
-        MudDialog.Close(DialogResult.Ok(true));
-    }
-
-    private void Update()
-    {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, "api/projects/" + _project.Id);
-        var json = JsonConvert.SerializeObject(projectUserPutRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }

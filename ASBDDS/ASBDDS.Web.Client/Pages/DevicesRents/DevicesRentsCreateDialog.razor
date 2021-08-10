@@ -4,7 +4,7 @@
 @using Newtonsoft.Json
 @using ASBDDS.Shared.Helpers
 @using System.Text
-@inject HttpClient httpClient
+@inject IHttpService httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
@@ -36,12 +36,6 @@
                 }
             </MudSelect>
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@devRentAdminPostRequest.CreatorId" Label="Creator ID" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-            </MudItem>
-            <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@devRentAdminPostRequest.ProjectId" Label="Project ID" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-            </MudItem>
-            <MudItem xs="12">
                 <MudTextField Class="my-2" @bind-Value="@devRentAdminPostRequest.IPXEUrl" Label="IPXE Url" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
         </MudContainer>
@@ -67,26 +61,17 @@
     {
     }
 
-    private async void CreateCallback()
+    private async void Create()
     {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceRentUserPostRequest>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
+        var apiResp = await httpClient.Post<ApiResponse<DeviceRentUserPostRequest>>("api/devicesrents/", devRentAdminPostRequest);
+        if (apiResp == null || apiResp.Status.Code != 0)
         {
-            _snackBars.ShowError(respBodyObj.Status.Message);
+            if (apiResp != null)
+                _snackBars.ShowError(apiResp.Status.Message);
+            else
+                _snackBars.ShowError("Unhandled error");
         }
-        MudDialog.Close(DialogResult.Ok(true));
-    }
-
-    private void Create()
-    {
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "api/devicesrents/");
-        var json = JsonConvert.SerializeObject(devRentAdminPostRequest);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
-        httpRequest.Content = data;
-
-        httpResp = httpClient.SendAsync(httpRequest);
-        httpResp.ContinueWith(p => CreateCallback());
+        else
+            MudDialog.Close(DialogResult.Ok(true));
     }
 }
