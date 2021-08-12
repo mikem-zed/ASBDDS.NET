@@ -159,7 +159,7 @@ namespace ASBDDS.NET
                 userPanel.UseBlazorFrameworkFiles();
                 userPanel.UseStaticFiles();
                 userPanel.UseSwagger();
-                userPanel.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASBDDS.NET v1"));
+                userPanel.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "ASBDDS.NET v1"));
                 userPanel.UseRouting();
                 userPanel.UseAuthentication();
                 userPanel.UseAuthorization();
