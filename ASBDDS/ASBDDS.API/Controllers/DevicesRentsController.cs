@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -33,12 +34,12 @@ namespace ASBDDS.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("api/devicesrents")]
-        public async Task<ActionResult<ApiResponse<List<DeviceRentUserResponse>>>> GetUserDevicesRents()
+        public async Task<ActionResult<ApiResponse<List<DeviceRentUserResponse>>>> GetUserDevicesRents([FromHeader(Name="ProjectId")][Required] Guid projectId)
         {
             var resp = new ApiResponse<List<DeviceRentUserResponse>>();
             try
             {
-                var project = await DbSearchHelper.FindProject(_context, Request);
+                var project = await _context.Projects.FindAsync(projectId);
                 if(project == null)
                 {
                     resp.Status.Code = 1;
@@ -72,12 +73,12 @@ namespace ASBDDS.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("api/devicesrents/{id}")]
-        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> GetUserDeviceRent(Guid id)
+        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> GetUserDeviceRent([FromHeader(Name="ProjectId")][Required] Guid projectId, Guid id)
         {
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var project = await DbSearchHelper.FindProject(_context, Request);
+                var project = await _context.Projects.FindAsync(projectId);
                 if (project == null)
                 {
                     resp.Status.Code = 1;
@@ -108,12 +109,13 @@ namespace ASBDDS.API.Controllers
         /// <param name="devRentReq">See schema</param>
         /// <returns></returns>
         [HttpPut("api/devicesrents/{id}")]
-        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> UpdateUserDeviceRent(Guid id, DeviceRentUserPutRequest devRentReq)
+        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> UpdateUserDeviceRent(Guid id, DeviceRentUserPutRequest devRentReq,
+                                                                                        [FromHeader(Name="ProjectId")][Required] Guid projectId)
         {
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var project = await DbSearchHelper.FindProject(_context, Request);
+                var project = await _context.Projects.FindAsync(projectId);
                 if (project == null)
                 {
                     resp.Status.Code = 1;
@@ -149,13 +151,14 @@ namespace ASBDDS.API.Controllers
         /// <param name="devRentReq">See schema</param>
         /// <returns></returns>
         [HttpPost("api/devicesrents/")]
-        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> CreateUserDeviceRent(DeviceRentUserPostRequest devRentReq)
+        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> CreateUserDeviceRent([FromHeader(Name="ProjectId")][Required] Guid projectId, 
+                                                                                                        DeviceRentUserPostRequest devRentReq)
         {
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
                 var user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
-                var project = await DbSearchHelper.FindProject(_context, Request);
+                var project = await _context.Projects.FindAsync(projectId);
                 if (project == null)
                 {
                     resp.Status.Code = 1;
@@ -202,12 +205,13 @@ namespace ASBDDS.API.Controllers
         /// <param name="id">Device ID</param>
         /// <returns></returns>
         [HttpDelete("api/devicesrents/{id}")]
-        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> DeleteUserDeviceRent(Guid id)
+        public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> DeleteUserDeviceRent([FromHeader(Name="ProjectId")][Required] Guid projectId, 
+                                                                                                        Guid id)
         {
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var project = await DbSearchHelper.FindProject(_context, Request);
+                var project = await _context.Projects.FindAsync(projectId);
                 if (project == null)
                 {
                     resp.Status.Code = 1;
