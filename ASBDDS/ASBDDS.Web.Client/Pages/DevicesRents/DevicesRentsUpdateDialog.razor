@@ -23,7 +23,7 @@
 @code {
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Parameter] public DeviceRentUserResponse _deviceRent { get; set; }
+    [Parameter] public DeviceRentUserResponse DeviceRent { get; set; }
 
     private DeviceRentUserPutRequest devRentAdminPutRequest;
     private DeviceRentUserResponse devRentUserResponse;
@@ -35,12 +35,12 @@
     protected override async Task OnInitializedAsync()
     {
         devRentAdminPutRequest = new DeviceRentUserPutRequest();
-        devRentAdminPutRequest.Name = _deviceRent.Name;
+        devRentAdminPutRequest.Name = DeviceRent.Name;
     }
 
     private async void Create()
     {
-        var apiResp = await httpClient.Put<ApiResponse<DeviceRentUserResponse>>("api/devicesrents/" + _deviceRent.Id, devRentAdminPutRequest);
+        var apiResp = await httpClient.Put<ApiResponse<DeviceRentUserResponse>>("api/devicesrents/" + DeviceRent.Id, devRentAdminPutRequest);
         if (apiResp == null || apiResp.Status.Code != 0)
         {
             if (apiResp != null)
