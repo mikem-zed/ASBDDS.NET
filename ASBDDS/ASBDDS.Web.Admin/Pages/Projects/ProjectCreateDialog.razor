@@ -23,12 +23,33 @@
             <b>Devices limits</b>
             @foreach (var devLimit in _projectAdminPostRequest.ProjectDeviceLimits)
             {
-                <MudItem xs="12" Class="d-flex flex-row">
-                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-                    <MudTextField Class="mr-1" @bind-Value="@devLimit.Count" Label="Count" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeleteDevice(devLimit))"/>
-                </MudItem>
+            <MudItem xs="12" Class="d-flex flex-row">
+                <MudSelect Class="my-2" @bind-Value="@devLimit.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @{
+                            var deviceHelper = new DeviceHelper();
+                            foreach (var manufacturer in deviceHelper.GetManufacturers())
+                            {
+                            <MudSelectItem Value="@deviceHelper.GetManufacturer(manufacturer)"></MudSelectItem>
+                            }
+                    }
+                </MudSelect>
+                <MudSelect Class="my-2" @bind-Value="@devLimit.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @{
+                            if (devLimit.Manufacturer != "")
+                            {
+                                var deviceHelper = new DeviceHelper();
+                                var models = deviceHelper.GetModels(devLimit.Manufacturer);
+                                foreach (var model in models)
+                                {
+                                    var modelName = deviceHelper.GetModel(model);
+                                <MudSelectItem Value="@modelName"></MudSelectItem>
+                                }
+                            }
+                    }
+                </MudSelect>
+                <MudTextField Class="my-2" @bind-Value="@devLimit.Count" Label="Count" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Class="ma-n1" OnClick="@(() => DeleteDevice(devLimit))" />
+            </MudItem>
             }
             <MudIconButton Class="d-flex flex-row my-n1" Icon="@Icons.Material.Rounded.Add" OnClick="@AddPort" Color="Color.Success" aria-label="add"></MudIconButton>
         </MudContainer>
