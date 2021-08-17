@@ -16,5 +16,6 @@ namespace ASBDDS.Shared.Models.Responses
         /// Token expiration date
         /// </summary>
         public DateTime Expires { get; set; }
+        public string RefreshToken { get; set; }
     }
 }
