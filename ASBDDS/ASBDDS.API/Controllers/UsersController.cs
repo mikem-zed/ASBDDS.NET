@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using ASBDDS.API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -254,11 +256,16 @@ namespace ASBDDS.API.Controllers
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
                     var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
+                    dbuser.RefreshToken = GenerateRefreshToken();
+                    _context.Entry(dbuser).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+
                     resp.Data = new TokenResponse()
                     {
                         AccessToken = encodedJwt,
                         UserName = userClaims.Name,
-                        Expires = jwt.ValidTo
+                        Expires = jwt.ValidTo,
+                        RefreshToken = dbuser.RefreshToken
                     };
                 }
             }
@@ -268,6 +275,87 @@ namespace ASBDDS.API.Controllers
                 resp.Status.Message = e.Message;
             }
             return resp;
+        }
+        
+        [AllowAnonymous]
+        [HttpPost("api/users/jwt/refresh")]
+        public async Task<ActionResult<ApiResponse<TokenResponse>>> Refresh(TokenRefreshRequest request)
+        {   
+            var resp = new ApiResponse<TokenResponse>();
+            try
+            {
+                var principal = GetPrincipalFromExpiredToken(request.AccessToken);
+                var username = principal.Identity.Name;
+                if (username != null)
+                {
+                    var dbuser = await _userManager.FindByNameAsync(username);
+
+                    if (dbuser.RefreshToken != request.RefreshToken)
+                    {
+                        resp.Status.Code = 1;
+                        resp.Status.Message = "refresh token is not valid.";
+                    }
+                    
+                    var userClaims = await GetClaimsIdentity(dbuser);
+                    var now = DateTime.UtcNow;
+                    var expires = now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME));
+
+                    var jwt = new JwtSecurityToken(
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        notBefore: now,
+                        claims: userClaims.Claims,
+                        expires: expires,
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                    
+                    dbuser.RefreshToken = GenerateRefreshToken();
+                    _context.Entry(dbuser).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+
+                    resp.Data = new TokenResponse()
+                    {
+                        AccessToken = encodedJwt,
+                        UserName = userClaims.Name,
+                        Expires = jwt.ValidTo,
+                        RefreshToken = dbuser.RefreshToken
+                    };
+                }
+            }
+            catch(Exception e)
+            {
+                resp.Status.Code = 1;
+                resp.Status.Message = e.Message;
+            }
+            return resp;
+        }
+        
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+        
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                ValidateLifetime = true
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+
+            return principal;
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(ApplicationUser user)

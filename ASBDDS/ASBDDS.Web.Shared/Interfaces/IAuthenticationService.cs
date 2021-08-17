@@ -8,6 +8,8 @@ namespace ASBDDS.Web.Shared.Interfaces
     {
         TokenRequest TokenRequest { get; }
         TokenResponse TokenResponse { get; }
+        TokenRefreshRequest TokenRefreshRequest { get; }
+        Task<bool> TryRefreshToken();
         Task Initialize();
         Task Login(string username, string password);
         Task Logout();

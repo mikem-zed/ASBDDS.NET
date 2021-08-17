@@ -23,19 +23,22 @@ namespace ASBDDS.Web.Client.Services
         private ILocalStorageService _localStorageService;
         private ApiAuthenticationStateProvider _authenticationStateProvider;
         private IConfiguration _configuration;
+        private IAuthenticationService _authenticationService;
 
         public HttpService(
             HttpClient httpClient,
             NavigationManager navigationManager,
             ILocalStorageService localStorageService,
             IConfiguration configuration,
-            AuthenticationStateProvider authenticationStateProvider
+            AuthenticationStateProvider authenticationStateProvider,
+            IAuthenticationService authenticationService
         ) {
             _httpClient = httpClient;
             _navigationManager = navigationManager;
             _localStorageService = localStorageService;
             _configuration = configuration;
             _authenticationStateProvider = (ApiAuthenticationStateProvider)authenticationStateProvider;
+            _authenticationService = authenticationService;
         }
 
         public async Task<T> Get<T>(string uri)
@@ -81,7 +84,15 @@ namespace ASBDDS.Web.Client.Services
                  request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
             else
             {
-                 _navigationManager.NavigateTo("logout");
+                var isRefreshOk = await _authenticationService.TryRefreshToken();
+                if (isRefreshOk)
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+                }
+                else
+                {
+                    _navigationManager.NavigateTo("logout");
+                }
             }
 
             using var response = await _httpClient.SendAsync(request);
