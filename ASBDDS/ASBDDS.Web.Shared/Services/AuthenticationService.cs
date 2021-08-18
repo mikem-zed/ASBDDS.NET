@@ -15,22 +15,17 @@ namespace ASBDDS.Web.Client.Services
     public class AuthenticationService : IAuthenticationService
     {
         private HttpClient _httpClient;
-        private NavigationManager _navigationManager;
         private ILocalStorageService _localStorageService;
         private AuthenticationStateProvider _authenticationStateProvider;
 
         public TokenResponse TokenResponse { get; private set; }
-        public TokenRequest TokenRequest { get; private set; }
-        public TokenRefreshRequest TokenRefreshRequest { get; private set; }
 
         public AuthenticationService(
             HttpClient httpClient,
-            NavigationManager navigationManager,
             ILocalStorageService localStorageService,
             AuthenticationStateProvider authenticationStateProvider
         ) {
             _httpClient = httpClient;
-            _navigationManager = navigationManager;
             _localStorageService = localStorageService;
             _authenticationStateProvider = authenticationStateProvider;
         }
@@ -38,24 +33,34 @@ namespace ASBDDS.Web.Client.Services
         public async Task Initialize()
         {
             TokenResponse = await _localStorageService.GetItemAsync<TokenResponse>("TokenResponse");
-            TokenResponse = await _localStorageService.GetItemAsync<TokenResponse>("TokenRequest");
         }
 
-        public async Task<bool> TryRefreshToken()
+        private async Task ResetTokenDataAsync()
         {
+            await _localStorageService.RemoveItemAsync("TokenResponse");
+            TokenResponse = null;
+        }
+
+        public async Task<bool> RefreshToken()
+        {
+            var success = false;
             var expiredToken = await _localStorageService.GetItemAsync<TokenResponse>("TokenResponse");
 
 
             if (expiredToken == null || expiredToken.RefreshToken == null || expiredToken.AccessToken == null)
-                return false;
+            {
+                await ResetTokenDataAsync();
+                (_authenticationStateProvider as ApiAuthenticationStateProvider).Notify();
+                return success;
+            }
             
-            TokenRefreshRequest = new TokenRefreshRequest
+            var tokenRefreshRequest = new TokenRefreshRequest
             {
                 AccessToken = expiredToken.AccessToken,
                 RefreshToken = expiredToken.RefreshToken
             };
 
-            var json = JsonConvert.SerializeObject(TokenRefreshRequest);
+            var json = JsonConvert.SerializeObject(tokenRefreshRequest);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/users/jwt/refresh", data);
             var content = await response.Content.ReadAsStringAsync();
@@ -67,17 +72,22 @@ namespace ASBDDS.Web.Client.Services
                 TokenResponse = tokenRefreshResponse.Data;
                 await _localStorageService.SetItemAsync("TokenResponse", TokenResponse);
                 (_authenticationStateProvider as ApiAuthenticationStateProvider).Notify();
-                return true;
+                success = true;
+            } 
+            else
+            {
+                await _localStorageService.SetItemAsync<TokenResponse>("TokenResponse", null);
+                (_authenticationStateProvider as ApiAuthenticationStateProvider).Notify();
             }
 
-            return false;
+            return success;
         }
 
         public async Task Login(string username, string password)
         {
-            TokenRequest = new TokenRequest() {UserName = username, Password = password };
+            var tokenRequest = new TokenRequest() {UserName = username, Password = password };
 
-            var json = JsonConvert.SerializeObject(TokenRequest);
+            var json = JsonConvert.SerializeObject(tokenRequest);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/users/jwt", data);
             var content = await response.Content.ReadAsStringAsync();
@@ -88,18 +98,14 @@ namespace ASBDDS.Web.Client.Services
                 TokenResponse = tokenResponse.Data;
             }
             await _localStorageService.SetItemAsync("TokenResponse", TokenResponse);
-            await _localStorageService.SetItemAsync("TokenRequest", TokenRequest);
             (_authenticationStateProvider as ApiAuthenticationStateProvider).Notify();
         }
 
         public async Task Logout()
         {
             TokenResponse = null;
-            TokenRequest = null;
             await _localStorageService.RemoveItemAsync("TokenResponse");
-            await _localStorageService.RemoveItemAsync("TokenRequest");
             (_authenticationStateProvider as ApiAuthenticationStateProvider).Notify();
-            _navigationManager.NavigateTo("login");
         }
     }
 }

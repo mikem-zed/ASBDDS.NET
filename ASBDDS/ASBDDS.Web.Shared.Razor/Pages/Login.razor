@@ -1,7 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
-@using ASBDDS.Web.Shared.Helpers
 @using ASBDDS.Web.Shared.Interfaces
 @using MudBlazor
 
@@ -14,34 +13,17 @@
         </MudForm>
     </MudCardContent>
     <MudCardActions>
-        <MudButton OnClick="HandleValidSubmit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+        <MudButton OnClick="HandleLogin" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
     </MudCardActions>
 </MudCard>
 
 @code {
-    MudTextField<string> _pwField;
-    MudForm _form;
-    bool _success;
-    string[] _errors = { };
-    
+
     private Model _model = new Model();
 
-    protected override void OnInitialized()
+    private async void HandleLogin()
     {
-    // redirect to home if already logged in
-        if (AuthenticationService.TokenResponse != null)
-        {
-            NavigationManager.NavigateTo("");
-        }
-    }
-
-    private async void HandleValidSubmit()
-    {
-
         await AuthenticationService.Login(_model.Username, _model.Password);
-        var returnUrl = NavigationManager.QueryString("returnUrl") ?? "/";
-        NavigationManager.NavigateTo(returnUrl);
-        StateHasChanged();
     }
 
     private class Model

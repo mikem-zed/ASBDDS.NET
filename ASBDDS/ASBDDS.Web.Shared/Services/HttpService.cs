@@ -84,25 +84,24 @@ namespace ASBDDS.Web.Client.Services
                  request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
             else
             {
-                var isRefreshOk = await _authenticationService.TryRefreshToken();
+                var isRefreshOk = await _authenticationService.RefreshToken();
                 if (isRefreshOk)
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
-                }
+                    return await SendRequest<T>(request);
+                } 
                 else
                 {
-                    _navigationManager.NavigateTo("logout");
+
                 }
             }
 
             using var response = await _httpClient.SendAsync(request);
 
             // auto logout on 401 response
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                _navigationManager.NavigateTo("logout");
-                return default;
-            }
+            //if (response.StatusCode == HttpStatusCode.Unauthorized)
+            //{
+            //    return default;
+            //}
 
             var respStr = await response.Content.ReadAsStringAsync();
             // throw exception on error response

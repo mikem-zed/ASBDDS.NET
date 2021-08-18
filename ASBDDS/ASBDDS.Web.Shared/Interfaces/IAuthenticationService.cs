@@ -6,10 +6,7 @@ namespace ASBDDS.Web.Shared.Interfaces
 {
     public interface IAuthenticationService
     {
-        TokenRequest TokenRequest { get; }
-        TokenResponse TokenResponse { get; }
-        TokenRefreshRequest TokenRefreshRequest { get; }
-        Task<bool> TryRefreshToken();
+        Task<bool> RefreshToken();
         Task Initialize();
         Task Login(string username, string password);
         Task Logout();

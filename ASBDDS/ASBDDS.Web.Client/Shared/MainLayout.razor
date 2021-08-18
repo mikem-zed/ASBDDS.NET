@@ -2,7 +2,6 @@
 @using ASBDDS.Shared.Models.Responses
 @using Blazored.LocalStorage
 @inject IAuthenticationService AuthenticationService
-@inject NavigationManager NavigationManager
 @inject ILocalStorageService _localStorageService
 @inject IHttpService _httpClient
 <MudLayout>
@@ -67,7 +66,6 @@
     private async void Logout()
     {
         await AuthenticationService.Logout();
-        NavigationManager.NavigateTo("/");
     }
 
     protected override async Task OnInitializedAsync()
