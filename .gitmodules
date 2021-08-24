@@ -1,6 +1,6 @@
-[submodule "tftp.net"]
-	path = tftp.net
-	url = ../tftp.net.git
-[submodule "DHCPServer"]
-	path = DHCPServer
+[submodule "ASBDDS/ExtLibraries/DHCPServer"]
+	path = ASBDDS/ExtLibraries/DHCPServer
 	url = ../DHCPServer.git
+[submodule "ASBDDS/ExtLibraries/tftp.net"]
+	path = ASBDDS/ExtLibraries/tftp.net
+	url = ../tftp.net.git

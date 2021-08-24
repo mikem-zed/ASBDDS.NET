@@ -38,8 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DHCPServer\DHCPServer\Library\DHCPServer.csproj" />
-    <ProjectReference Include="..\..\tftp.net\Tftp.Net\Tftp.Net.csproj" />
+    <ProjectReference Include="..\ExtLibraries\DHCPServer\DHCPServer\Library\DHCPServer.csproj" />
+    <ProjectReference Include="..\ExtLibraries\tftp.net\Tftp.Net\Tftp.Net.csproj" />
     <ProjectReference Include="..\ASBDDS.Shared\ASBDDS.Shared.csproj" />
     <ProjectReference Include="..\ASBDDS.Web.Admin\ASBDDS.Web.Admin.csproj" />
     <ProjectReference Include="..\ASBDDS.Web.Client\ASBDDS.Web.Client.csproj" />
