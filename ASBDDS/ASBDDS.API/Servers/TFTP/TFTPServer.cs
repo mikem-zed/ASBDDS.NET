@@ -13,9 +13,10 @@ namespace ASBDDS.API.Servers.TFTP
     {
         public string TftpDirectory { get; }
         private TftpServer server { get; set; }
-        public TFTPServer()
+        public TFTPServer(string ip, int port = 69)
         {
-            server = new TftpServer();
+            var ipAddr = IPAddress.Parse(ip);
+            server = new TftpServer(ipAddr, port);
             TftpDirectory = BootloaderSetupHelper.TftpDirectory;
             CreateTftpRootPath();
         }
@@ -31,8 +32,7 @@ namespace ASBDDS.API.Servers.TFTP
                 DirectoryInfo di = Directory.CreateDirectory(TftpDirectory);
 
             }
-            catch (Exception e) { }
-            finally { }
+            catch { }
         }
 
         public void Start()

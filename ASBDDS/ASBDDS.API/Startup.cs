@@ -22,10 +22,13 @@ namespace ASBDDS.NET
         {
             Configuration = configuration;
 
-            TFTPServer = new TFTPServer();
-            TFTPServer.Start();
-            DHCPServer = new DHCPServer(Configuration.GetValue<string>("Networking:IP"));
-            //DHCPServer.Start();
+            var dnet_ip = Configuration.GetValue<string>("Networks:Devices:IP");
+            var dnet_mask = Configuration.GetValue<string>("Networks:Devices:DHCP:mask");
+            var dnet_dhcp_start = Configuration.GetValue<string>("Networks:Devices:DHCP:start");
+            var dnet_dhcp_end = Configuration.GetValue<string>("Networks:Devices:DHCP:end");
+
+            TFTPServer = new TFTPServer(dnet_ip, 69);
+            DHCPServer = new DHCPServer(dnet_ip, dnet_mask, dnet_dhcp_start, dnet_dhcp_end, 67);
         }
 
         public IConfiguration Configuration { get; }
@@ -40,8 +43,8 @@ namespace ASBDDS.NET
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<DataDbContext>();
-            services.AddTransient(provider => { return TFTPServer; });
-            services.AddTransient(provider => { return DHCPServer; });
+            services.AddSingleton(provider => { return TFTPServer; });
+            services.AddSingleton(provider => { return DHCPServer; });
             services.AddAuthentication(option =>  
                 {  
                     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;  
@@ -129,13 +132,15 @@ namespace ASBDDS.NET
                 app.UseHsts();
             }
 
-            //app.UseSwagger();
-            //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASBDDS.NET v1"));
-
             // Apply unapplied migrations when the service starts, or create a database if it doesn't exist. 
             //If no users are found, default users from config will be created.
             var serviceProvider = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
             SeedDatabase.Initialize(serviceProvider, Configuration);
+
+            // Configure and start DHCP Server
+            DHCPServerHelper.Initialize(serviceProvider);
+            // Configure and start TFTP Server
+            TFTPServerHelper.Initialize(serviceProvider);
 
             app.UseHttpsRedirection();
 
