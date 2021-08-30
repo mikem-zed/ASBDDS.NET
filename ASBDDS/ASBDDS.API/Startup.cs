@@ -39,7 +39,7 @@ namespace ASBDDS.NET
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DataDbConnection"),
-                x => x.MigrationsAssembly("ASBDDS.API")));
+                x => x.MigrationsAssembly("ASBDDS.API")), ServiceLifetime.Transient);
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<DataDbContext>();
