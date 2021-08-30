@@ -93,7 +93,7 @@
     }
     private async void OnProjectChange(Guid id)
     {
-        if (_currentProject.Id != null)
+        if (_currentProject.Id != Guid.Empty)
         {
             if (_projectUserResponses != null)
             {

@@ -65,13 +65,11 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     private ProjectAdminPostRequest _projectAdminPostRequest;
-    private ProjectAdminResponse projectAdminResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _projectAdminPostRequest = new ProjectAdminPostRequest();
         _projectAdminPostRequest.ProjectDeviceLimits = new List<DeviceLimitResponse>();

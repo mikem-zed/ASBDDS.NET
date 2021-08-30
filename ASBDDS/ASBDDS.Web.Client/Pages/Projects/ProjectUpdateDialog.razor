@@ -34,7 +34,7 @@
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _projectUserPutRequest = new ProjectUserPutRequest();
         _projectUserPutRequest.Name = Project.Name;

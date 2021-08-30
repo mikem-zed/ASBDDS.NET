@@ -26,13 +26,11 @@
     [Parameter] public DeviceRentUserResponse DeviceRent { get; set; }
 
     private DeviceRentUserPutRequest devRentAdminPutRequest;
-    private DeviceRentUserResponse devRentUserResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         devRentAdminPutRequest = new DeviceRentUserPutRequest();
         devRentAdminPutRequest.Name = DeviceRent.Name;

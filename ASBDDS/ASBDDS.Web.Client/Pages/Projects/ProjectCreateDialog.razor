@@ -28,7 +28,7 @@
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _projectUserPostRequest = new ProjectUserPostRequest();
     }

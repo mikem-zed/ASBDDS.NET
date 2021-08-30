@@ -70,13 +70,11 @@
     [Parameter] public ProjectAdminResponse _project { get; set; } = new ProjectAdminResponse();
 
     private ProjectAdminPutRequest _projectAdminPutRequest;
-    private ProjectAdminResponse projectAdminResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _projectAdminPutRequest = new ProjectAdminPutRequest();
         _projectAdminPutRequest.ProjectDeviceLimits = new List<DeviceLimitResponse>();

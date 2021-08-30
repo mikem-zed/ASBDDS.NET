@@ -51,15 +51,9 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     private DeviceRentUserPostRequest devRentAdminPostRequest = new DeviceRentUserPostRequest();
-    private DeviceRentUserResponse projectAdminResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     private void Cancel() => MudDialog.Cancel();
-
-    protected override async Task OnInitializedAsync()
-    {
-    }
 
     private async void Create()
     {

@@ -162,7 +162,9 @@ namespace ASBDDS.NET
                 userPanel.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "ASBDDS.NET v1"));
                 userPanel.UseRouting();
                 userPanel.UseAuthentication();
+#pragma warning disable ASP0001 // Authorization middleware is incorrectly configured.
                 userPanel.UseAuthorization();
+#pragma warning restore ASP0001 // Authorization middleware is incorrectly configured.
                 userPanel.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();

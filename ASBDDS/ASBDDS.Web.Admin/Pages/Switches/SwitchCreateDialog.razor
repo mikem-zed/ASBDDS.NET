@@ -83,12 +83,11 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     private SwitchAdminPostRequest _switchAdminPostRequest;
-    private SwitchAdminResponse _switchAdminResponse;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _switchAdminPostRequest = new SwitchAdminPostRequest();
         _switchAdminPostRequest.Ports = new List<SwitchPortAdminResponse>();

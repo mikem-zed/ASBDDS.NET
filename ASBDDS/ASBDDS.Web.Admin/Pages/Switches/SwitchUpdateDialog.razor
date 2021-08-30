@@ -90,13 +90,11 @@
     [Parameter] public SwitchAdminResponse _switch { get; set; } = new SwitchAdminResponse();
 
     private SwitchAdminPutRequest _switchAdminPutRequest;
-    private SwitchAdminResponse switchAdminResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _switchAdminPutRequest = new SwitchAdminPutRequest();
         _switchAdminPutRequest.Ports = new List<SwitchPortAdminResponse>();

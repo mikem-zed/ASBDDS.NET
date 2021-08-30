@@ -34,27 +34,9 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     private UserAdminPostRequest _userAdminPostRequest = new UserAdminPostRequest();
-    private UserAdminResponse userAdminResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
-
-    protected override async Task OnInitializedAsync()
-    {
-        
-    }
-
-    private async void CreateCallback()
-    {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<UserAdminPostRequest>>(bodyStr);
-        {
-            _snackBars.ShowError(respBodyObj.Status.Message);
-        }
-        MudDialog.Close(DialogResult.Ok(true));
-    }
 
     private async void Create()
     {

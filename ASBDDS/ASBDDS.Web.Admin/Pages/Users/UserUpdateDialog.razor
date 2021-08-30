@@ -36,13 +36,11 @@
     [Parameter] public UserAdminResponse User { get; set; } = new UserAdminResponse();
 
     private UserAdminPutRequest _userAdminPutRequest;
-    private UserAdminResponse _userAdminResponse;
-    private Task<HttpResponseMessage> httpResp;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _userAdminPutRequest = new UserAdminPutRequest();
         _userAdminPutRequest.Id = User.Id;
@@ -50,18 +48,6 @@
         _userAdminPutRequest.LastName = User.LastName;
         _userAdminPutRequest.Email = User.Email;
         _userAdminPutRequest.Disabled = User.Disabled;
-    }
-
-    private async void CreateCallback()
-    {
-        var res = httpResp.Result;
-        var bodyStr = await res.Content.ReadAsStringAsync();
-        var respBodyObj = JsonConvert.DeserializeObject<ApiResponse<DeviceAdminPutRequest>>(bodyStr);
-        if (respBodyObj.Status.Code != 0)
-        {
-            _snackBars.ShowError(respBodyObj.Status.Message);
-        }
-        MudDialog.Close(DialogResult.Ok(true));
     }
 
     private async void Update()
