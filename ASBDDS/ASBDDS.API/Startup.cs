@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.API.Models;
 using ASBDDS.API.Servers.TFTP;
@@ -10,9 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
+using System.Linq;
+using System.Net;
 using ASBDDS.API.Servers.DHCP;
+using GitHub.JPMikkers.DHCP;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using DHCPServer = ASBDDS.API.Servers.DHCP.DHCPServer;
 
 namespace ASBDDS.NET
 {
@@ -23,12 +28,21 @@ namespace ASBDDS.NET
             Configuration = configuration;
 
             var dnet_ip = Configuration.GetValue<string>("Networks:Devices:IP");
-            var dnet_mask = Configuration.GetValue<string>("Networks:Devices:DHCP:mask");
-            var dnet_dhcp_start = Configuration.GetValue<string>("Networks:Devices:DHCP:start");
-            var dnet_dhcp_end = Configuration.GetValue<string>("Networks:Devices:DHCP:end");
+            var dnet_network = Configuration.GetValue<string>("Networks:Devices:DHCP:network");
+            var dnet_exclude = Configuration.GetValue<List<string>>("Networks:Devices:DHCP:exclude");
+            dnet_exclude = Configuration.GetSection("Networks:Devices:DHCP:exclude").Get<List<string>>();
 
             TFTPServer = new TFTPServer(dnet_ip, 69);
-            DHCPServer = new DHCPServer(dnet_ip, dnet_mask, dnet_dhcp_start, dnet_dhcp_end, 67);
+            
+            var leasesManager = new DHCPLeasesManager();
+            
+            // Configure DHCP IP's Pool
+            var pool = new DHCPPool(dnet_network);
+            var excludedIpsFromPool = dnet_exclude.Select(IPAddress.Parse).ToList();
+            pool.RemoveFromUnused(excludedIpsFromPool);
+            
+                
+            DHCPServer = new DHCPServer(dnet_ip, 67, leasesManager, pool);
         }
 
         public IConfiguration Configuration { get; }
