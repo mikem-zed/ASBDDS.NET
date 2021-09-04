@@ -11,10 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
-using System.Linq;
-using System.Net;
 using ASBDDS.API.Servers.DHCP;
-using GitHub.JPMikkers.DHCP;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using DHCPServer = ASBDDS.API.Servers.DHCP.DHCPServer;
@@ -26,23 +23,10 @@ namespace ASBDDS.NET
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var dnetIpStr = Configuration.GetValue<string>("Networks:Devices:IP");
 
-            var dnet_ip = Configuration.GetValue<string>("Networks:Devices:IP");
-            var dnet_network = Configuration.GetValue<string>("Networks:Devices:DHCP:network");
-            var dnet_exclude = Configuration.GetValue<List<string>>("Networks:Devices:DHCP:exclude");
-            dnet_exclude = Configuration.GetSection("Networks:Devices:DHCP:exclude").Get<List<string>>();
-
-            TFTPServer = new TFTPServer(dnet_ip, 69);
-            
-            var leasesManager = new DHCPLeasesManager();
-            
-            // Configure DHCP IP's Pool
-            var pool = new DHCPPool(dnet_network);
-            var excludedIpsFromPool = dnet_exclude.Select(IPAddress.Parse).ToList();
-            pool.RemoveFromUnused(excludedIpsFromPool);
-            
-                
-            DHCPServer = new DHCPServer(dnet_ip, 67, leasesManager, pool);
+            TFTPServer = new TFTPServer(dnetIpStr, 69);
+            DHCPServer = DHCPServerHelper.Create(configuration);
         }
 
         public IConfiguration Configuration { get; }
@@ -152,7 +136,8 @@ namespace ASBDDS.NET
             SeedDatabase.Initialize(serviceProvider, Configuration);
 
             // Configure and start DHCP Server
-            DHCPServerHelper.Initialize(serviceProvider);
+            DHCPServerHelper.Init(serviceProvider);
+            DHCPServer.Start();
             // Configure and start TFTP Server
             TFTPServerHelper.Initialize(serviceProvider);
 

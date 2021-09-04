@@ -22,34 +22,14 @@ namespace ASBDDS.API.Servers.DHCP
 
     public class DHCPServer : DHCPJPMikkers.DHCPServer
     {
-        public IPAddress BindAddress { get; }
-
-        public DHCPServer(string host, int port, IDHCPLeasesManager leasesManager, DHCPPool pool) : base(IPAddress.Parse(host), port, leasesManager, pool)
+        public DHCPServer(IPAddress host, int port, IDHCPLeasesManager leasesManager, List<OptionItem> options) : base(host, port, leasesManager, options)
         {
-            BindAddress = IPAddress.Parse(host);
-            MinimumPacketSize = 576;
-            LeaseTime = TimeSpan.FromMinutes(5);
-            leasesManager.LeaseTime = LeaseTime;
-
+            bindAddress = host;
             OnStatusChange += _OnStatusChange;
             OnTrace += _OnTrace;
-
-            Options.Add(new OptionItem(mode: OptionMode.Force,
-                option: new DHCPOptionRouter()
-                {
-                    IPAddresses = new[] { BindAddress }
-                }));
-
-            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
-               option: new DHCPJPMikkers.DHCPOptionServerIdentifier(BindAddress)));
-
-            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
-              option: new DHCPJPMikkers.DHCPOptionTFTPServerName(BindAddress.ToString())));
-
-            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
-                 option: new DHCPJPMikkers.DHCPOptionHostName("ASBDDS")));
-
         }
+
+        private IPAddress bindAddress;
         private static void _OnStatusChange(object sender, DHCPJPMikkers.DHCPStopEventArgs e)
         {
             Trace.WriteLine(e?.Reason);
@@ -90,12 +70,7 @@ namespace ASBDDS.API.Servers.DHCP
             }
 
             targetMsg.BootFileName = bootFile;
-            targetMsg.NextServerIPAddress = BindAddress;
-        }
-
-        public new void Start()
-        {
-            base.Start();
+            targetMsg.NextServerIPAddress = bindAddress;
         }
     }
 
