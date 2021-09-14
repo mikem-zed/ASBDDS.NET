@@ -97,7 +97,7 @@
 
     private async void Update()
     {
-        var apiResp = await httpClient.Put<ApiResponse<DeviceAdminPutRequest>>("api/admin/devices" + _device.Id, _deviceAdminPutRequest);
+        var apiResp = await httpClient.Put<ApiResponse<DeviceAdminPutRequest>>("api/admin/devices/" + _device.Id, _deviceAdminPutRequest);
         if (apiResp == null || apiResp.Status.Code != 0)
         {
             if(apiResp != null)

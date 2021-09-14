@@ -43,7 +43,7 @@ namespace ASBDDS.API.Controllers
                 }
                 resp.Data = _switches;
             }
-            catch (Exception e)
+            catch
             {
                 resp.Status.Code = 1;
             }

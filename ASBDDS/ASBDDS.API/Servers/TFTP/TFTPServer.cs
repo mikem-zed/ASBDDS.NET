@@ -26,11 +26,8 @@ namespace ASBDDS.API.Servers.TFTP
             try
             {
                 if (Directory.Exists(TftpDirectory))
-                {
                     return;
-                }
                 DirectoryInfo di = Directory.CreateDirectory(TftpDirectory);
-
             }
             catch { }
         }
@@ -54,7 +51,7 @@ namespace ASBDDS.API.Servers.TFTP
 
         private void OnReadRequest(ITftpTransfer transfer, EndPoint client)
         {
-            String path = Path.Combine(TftpDirectory, transfer.Filename);
+            string path = Path.Combine(TftpDirectory, transfer.Filename);
             FileInfo file = new FileInfo(path);
 
             //Is the file within the server directory?
