@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ASBDDS.Shared.Models.Database.DataDb;
 using ASBDDS.API.Models;
 using ASBDDS.API.Servers.TFTP;
@@ -13,6 +14,7 @@ using System.IO;
 using ASBDDS.API.Servers.DHCP;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using DHCPServer = ASBDDS.API.Servers.DHCP.DHCPServer;
 
 namespace ASBDDS.NET
 {
@@ -21,19 +23,15 @@ namespace ASBDDS.NET
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var dnetIpStr = Configuration.GetValue<string>("Networks:Devices:IP");
 
-            var dnet_ip = Configuration.GetValue<string>("Networks:Devices:IP");
-            var dnet_mask = Configuration.GetValue<string>("Networks:Devices:DHCP:mask");
-            var dnet_dhcp_start = Configuration.GetValue<string>("Networks:Devices:DHCP:start");
-            var dnet_dhcp_end = Configuration.GetValue<string>("Networks:Devices:DHCP:end");
-
-            TFTPServer = new TFTPServer(dnet_ip, 69);
-            DHCPServer = new DHCPServer(dnet_ip, dnet_mask, dnet_dhcp_start, dnet_dhcp_end, 67);
+            TftpServer = new TFTPServer(dnetIpStr, 69);
+            DhcpServer = DHCPServerHelper.Create(configuration);
         }
 
         public IConfiguration Configuration { get; }
-        public TFTPServer TFTPServer { get; }
-        public DHCPServer DHCPServer { get; }
+        private TFTPServer TftpServer { get; }
+        private DHCPServer DhcpServer { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -43,8 +41,8 @@ namespace ASBDDS.NET
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<DataDbContext>();
-            services.AddSingleton(provider => { return TFTPServer; });
-            services.AddSingleton(provider => { return DHCPServer; });
+            services.AddSingleton(_ => TftpServer);
+            services.AddSingleton(_ => DhcpServer);
             services.AddAuthentication(option =>  
                 {  
                     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;  

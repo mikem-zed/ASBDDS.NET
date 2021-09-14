@@ -11,58 +11,30 @@ using DHCPJPMikkers = GitHub.JPMikkers.DHCP;
 
 namespace ASBDDS.API.Servers.DHCP
 {
+    public enum BootMode
+    {
+        PXE,
+        IPXE,
+        HTTP,
+        OTHER = 99
+    }
+
     public class DHCPServer : DHCPJPMikkers.DHCPServer
     {
-        public IPAddress BindAddress { get; set; }
-        public string HTTPBootFile { get; set; }
-
-        public DHCPServer(string address) : this(address, "255.255.255.0", 67) { }
-        public DHCPServer(string address, string mask, string poolStart, string poolEnd, int port) : this(address, mask, port) 
+        public DHCPServer(IPAddress host, int port, IDHCPLeasesManager leasesManager, List<OptionItem> options) : base(host, port, leasesManager, options)
         {
-            this.PoolStart = IPAddress.Parse(poolStart);
-            this.PoolEnd = IPAddress.Parse(poolEnd);
+            bindAddress = host;
+            OnStatusChange += _OnStatusChange;
+            OnTrace += _OnTrace;
         }
-        public DHCPServer(string address, string mask, int port) : base(null)
-        {
-            BindAddress = IPAddress.Parse(address);
 
-            var net = new IPSegment(BindAddress.ToString(), mask);
-
-            this.EndPoint = new IPEndPoint(BindAddress, port);
-            this.SubnetMask = IPAddress.Parse(mask);
-            this.PoolStart = net.Hosts().First().ToIpAddress();
-            this.PoolEnd = net.Hosts().Last().ToIpAddress();
-            this.LeaseTime = Utils.InfiniteTimeSpan;
-            this.OfferExpirationTime = TimeSpan.FromSeconds(30);
-
-            this.MinimumPacketSize = 576;
-
-
-            this.OnStatusChange += Dhcpd_OnStatusChange;
-            this.OnTrace += Dhcpd_OnTrace;
-
-            Options.Add(new OptionItem(mode: OptionMode.Force,
-                option: new DHCPOptionRouter()
-                {
-                    IPAddresses = new[] { BindAddress }
-                }));
-
-            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
-               option: new DHCPJPMikkers.DHCPOptionServerIdentifier(BindAddress)));
-
-            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
-              option: new DHCPJPMikkers.DHCPOptionTFTPServerName(BindAddress.ToString())));
-
-            Options.Add(new DHCPJPMikkers.OptionItem(mode: DHCPJPMikkers.OptionMode.Force,
-                 option: new DHCPJPMikkers.DHCPOptionHostName("ASBDDS")));
-
-        }
-        private void Dhcpd_OnStatusChange(object sender, DHCPJPMikkers.DHCPStopEventArgs e)
+        private IPAddress bindAddress;
+        private static void _OnStatusChange(object sender, DHCPJPMikkers.DHCPStopEventArgs e)
         {
             Trace.WriteLine(e?.Reason);
             Trace.Flush();
         }
-        private void Dhcpd_OnTrace(object sender, DHCPJPMikkers.DHCPTraceEventArgs e)
+        private static void _OnTrace(object sender, DHCPJPMikkers.DHCPTraceEventArgs e)
         {
             Trace.WriteLine(e?.Message);
             Trace.Flush();
