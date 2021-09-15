@@ -18,22 +18,20 @@ namespace ASBDDS.API.Controllers
     
     [ApiController]
     [Authorize]
+    [Route("api/devices/rents")]
     public class DevicesRentsController : ControllerBase
     {
         private readonly DataDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public DevicesRentsController(DataDbContext context, UserManager<ApplicationUser> userManager)
+        public DevicesRentsController(DataDbContext context)
         {
             _context = context;
-            _userManager = userManager;
         }
 
         /// <summary>
         /// Get all devices rents
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/devicesrents")]
+        [HttpGet]
         public async Task<ActionResult<ApiResponse<List<DeviceRentUserResponse>>>> GetUserDevicesRents([FromHeader(Name="ProjectId")][Required] Guid projectId)
         {
             var resp = new ApiResponse<List<DeviceRentUserResponse>>();
@@ -70,9 +68,10 @@ namespace ASBDDS.API.Controllers
         /// <summary>
         /// Get device rent by ID
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">device rent id</param>
+        /// <param name="projectId">project id</param>
         /// <returns></returns>
-        [HttpGet("api/devicesrents/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> GetUserDeviceRent([FromHeader(Name="ProjectId")][Required] Guid projectId, Guid id)
         {
             var resp = new ApiResponse<DeviceRentUserResponse>();
@@ -107,8 +106,9 @@ namespace ASBDDS.API.Controllers
         /// </summary>
         /// <param name="id">Device rent ID</param>
         /// <param name="devRentReq">See schema</param>
+        /// <param name="projectId">Project id</param>
         /// <returns></returns>
-        [HttpPut("api/devicesrents/{id}")]
+        [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> UpdateUserDeviceRent(Guid id, DeviceRentUserPutRequest devRentReq,
                                                                                         [FromHeader(Name="ProjectId")][Required] Guid projectId)
         {
@@ -149,15 +149,16 @@ namespace ASBDDS.API.Controllers
         /// Add new device rent
         /// </summary>
         /// <param name="devRentReq">See schema</param>
+        /// <param name="projectId">Project id</param>
         /// <returns></returns>
-        [HttpPost("api/devicesrents/")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> CreateUserDeviceRent([FromHeader(Name="ProjectId")][Required] Guid projectId, 
                                                                                                         DeviceRentUserPostRequest devRentReq)
         {
             var resp = new ApiResponse<DeviceRentUserResponse>();
             try
             {
-                var user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                var user = _context.Users.FirstOrDefault(u => u.UserName.Equals(HttpContext.User.Identity.Name));
                 var project = await _context.Projects.FindAsync(projectId);
                 if (project == null)
                 {
@@ -203,8 +204,9 @@ namespace ASBDDS.API.Controllers
         /// Delete device rent by ID
         /// </summary>
         /// <param name="id">Device ID</param>
+        /// <param name="projectId">Project id</param>
         /// <returns></returns>
-        [HttpDelete("api/devicesrents/{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<ApiResponse<DeviceRentUserResponse>>> DeleteUserDeviceRent([FromHeader(Name="ProjectId")][Required] Guid projectId, 
                                                                                                         Guid id)
         {
