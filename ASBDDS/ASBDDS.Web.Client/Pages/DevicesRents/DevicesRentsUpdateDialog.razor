@@ -10,7 +10,7 @@
     <DialogContent>
         <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@devRentAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_devRentAdminPutRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
         </MudContainer>
     </DialogContent>
@@ -25,20 +25,20 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public DeviceRentUserResponse DeviceRent { get; set; }
 
-    private DeviceRentUserPutRequest devRentAdminPutRequest;
+    private DeviceRentUserPutRequest _devRentAdminPutRequest;
     private SnackBars _snackBars;
 
     void Cancel() => MudDialog.Cancel();
 
     protected override void OnInitialized()
     {
-        devRentAdminPutRequest = new DeviceRentUserPutRequest();
-        devRentAdminPutRequest.Name = DeviceRent.Name;
+        _devRentAdminPutRequest = new DeviceRentUserPutRequest();
+        _devRentAdminPutRequest.Name = DeviceRent.Name;
     }
 
     private async void Create()
     {
-        var apiResp = await httpClient.Put<ApiResponse<DeviceRentUserResponse>>("api/devicesrents/" + DeviceRent.Id, devRentAdminPutRequest);
+        var apiResp = await httpClient.Put<ApiResponse<DeviceRentUserResponse>>("api/devices/rents/" + DeviceRent.Id, _devRentAdminPutRequest);
         if (apiResp == null || apiResp.Status.Code != 0)
         {
             if (apiResp != null)

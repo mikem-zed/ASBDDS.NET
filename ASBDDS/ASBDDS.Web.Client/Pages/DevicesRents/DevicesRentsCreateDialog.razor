@@ -4,15 +4,15 @@
 @using Newtonsoft.Json
 @using ASBDDS.Shared.Helpers
 @using System.Text
-@inject IHttpService httpClient
+@inject IHttpService _httpClient
 
 <MudDialog DisableSidePadding="true">
     <DialogContent>
         <MudContainer xs="12" Class="mx-auto px-4 justify-center my-4 mud-text-align-center" Style="max-height: 700px; width: 400px; overflow-y: scroll">
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@devRentAdminPostRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_devRentAdminPostRequest.Name" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
-            <MudSelect Class="my-2" @bind-Value="@devRentAdminPostRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelect Class="my-2" @bind-Value="@_devRentAdminPostRequest.Manufacturer" Label="Manufacturer" Variant="Variant.Outlined" Margin="Margin.Dense">
                 @{
                     var deviceHelper = new DeviceHelper();
                     foreach (var manufacturer in deviceHelper.GetManufacturers())
@@ -21,12 +21,12 @@
                     }
                 }
             </MudSelect>
-            <MudSelect Class="my-2" @bind-Value="@devRentAdminPostRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelect Class="my-2" @bind-Value="@_devRentAdminPostRequest.Model" Label="Model" Variant="Variant.Outlined" Margin="Margin.Dense">
                 @{
-                    if (devRentAdminPostRequest.Manufacturer != "")
+                    if (_devRentAdminPostRequest.Manufacturer != "")
                     {
                         var deviceHelper = new DeviceHelper();
-                        var models = deviceHelper.GetModels(devRentAdminPostRequest.Manufacturer);
+                        var models = deviceHelper.GetModels(_devRentAdminPostRequest.Manufacturer);
                         foreach (var model in models)
                         {
                             var modelName = deviceHelper.GetModel(model);
@@ -36,7 +36,7 @@
                 }
             </MudSelect>
             <MudItem xs="12">
-                <MudTextField Class="my-2" @bind-Value="@devRentAdminPostRequest.IPXEUrl" Label="IPXE Url" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                <MudTextField Class="my-2" @bind-Value="@_devRentAdminPostRequest.IPXEUrl" Label="IPXE Url" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
             </MudItem>
         </MudContainer>
     </DialogContent>
@@ -50,14 +50,14 @@
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
-    private DeviceRentUserPostRequest devRentAdminPostRequest = new DeviceRentUserPostRequest();
+    private readonly DeviceRentUserPostRequest _devRentAdminPostRequest = new();
     private SnackBars _snackBars;
 
     private void Cancel() => MudDialog.Cancel();
 
     private async void Create()
     {
-        var apiResp = await httpClient.Post<ApiResponse<DeviceRentUserPostRequest>>("api/devicesrents/", devRentAdminPostRequest);
+        var apiResp = await _httpClient.Post<ApiResponse<DeviceRentUserPostRequest>>("api/devices/rents/", _devRentAdminPostRequest);
         if (apiResp == null || apiResp.Status.Code != 0)
         {
             if (apiResp != null)

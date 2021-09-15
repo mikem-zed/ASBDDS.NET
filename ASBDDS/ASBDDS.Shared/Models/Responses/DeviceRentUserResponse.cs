@@ -48,6 +48,9 @@ namespace ASBDDS.Shared.Models.Responses
         /// </summary>
         public string IPXEUrl { get; set; }
 
+        public string DeviceState { get; set; }
+        public string Status { get; set; }
+
         public DeviceRentUserResponse(DeviceRent deviceRent)
         {
             device = deviceRent.Device;
@@ -62,6 +65,8 @@ namespace ASBDDS.Shared.Models.Responses
             IPXEUrl = deviceRent.IpxeUrl;
             Serial = deviceRent.Device.Serial;
             MacAddress = deviceRent.Device.MacAddress;
+            DeviceState = deviceRent.Device.StateEnum.ToString();
+            Status = deviceRent.Status.ToString().ToLower();
         }
 
         public DeviceRentUserResponse() { }
