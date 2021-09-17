@@ -25,14 +25,17 @@ namespace ASBDDS.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly AuthOptions _authOptions;
 
         public UsersController(DataDbContext context, UserManager<ApplicationUser> userManager, 
-                                    SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager)
+                                    SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager,
+                                    AuthOptions authOptions)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _authOptions = authOptions;
         }
 
         // GET: api/ApplicationUsers
@@ -245,15 +248,15 @@ namespace ASBDDS.API.Controllers
                 {
                     var userClaims = await GetClaimsIdentity(dbuser);
                     var now = DateTime.UtcNow;
-                    var expires = now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME));
+                    var expires = now.Add(TimeSpan.FromMinutes(1));
                     // создаем JWT-токен
                     var jwt = new JwtSecurityToken(
-                        issuer: AuthOptions.ISSUER,
-                        audience: AuthOptions.AUDIENCE,
+                        issuer: _authOptions.Issuer,
+                        audience: _authOptions.Audience,
                         notBefore: now,
                         claims: userClaims.Claims,
                         expires: expires,
-                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                        signingCredentials: new SigningCredentials(_authOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
                     var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
                     dbuser.RefreshToken = GenerateRefreshToken();
@@ -285,32 +288,32 @@ namespace ASBDDS.API.Controllers
             try
             {
                 var principal = GetPrincipalFromExpiredToken(request.AccessToken);
-                var username = principal.Identity.Name;
-                if (username != null)
+                var username = principal?.Identity?.Name;
+                if (!string.IsNullOrEmpty(username))
                 {
-                    var dbuser = await _userManager.FindByNameAsync(username);
+                    var dbUser = await _userManager.FindByNameAsync(username);
 
-                    if (dbuser.RefreshToken != request.RefreshToken)
+                    if (dbUser.RefreshToken != request.RefreshToken)
                     {
                         resp.Status.Code = 1;
                         resp.Status.Message = "refresh token is not valid.";
                     }
                     
-                    var userClaims = await GetClaimsIdentity(dbuser);
+                    var userClaims = await GetClaimsIdentity(dbUser);
                     var now = DateTime.UtcNow;
-                    var expires = now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME));
+                    var expires = now.Add(TimeSpan.FromMinutes(1));
 
                     var jwt = new JwtSecurityToken(
-                        issuer: AuthOptions.ISSUER,
-                        audience: AuthOptions.AUDIENCE,
+                        issuer: _authOptions.Issuer,
+                        audience: _authOptions.Audience,
                         notBefore: now,
                         claims: userClaims.Claims,
                         expires: expires,
-                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                        signingCredentials: new SigningCredentials(_authOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
                     var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
                     
-                    dbuser.RefreshToken = GenerateRefreshToken();
-                    _context.Entry(dbuser).State = EntityState.Modified;
+                    dbUser.RefreshToken = GenerateRefreshToken();
+                    _context.Entry(dbUser).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
 
                     resp.Data = new TokenResponse()
@@ -318,7 +321,7 @@ namespace ASBDDS.API.Controllers
                         AccessToken = encodedJwt,
                         UserName = userClaims.Name,
                         Expires = jwt.ValidTo,
-                        RefreshToken = dbuser.RefreshToken
+                        RefreshToken = dbUser.RefreshToken
                     };
                 }
             }
@@ -345,7 +348,7 @@ namespace ASBDDS.API.Controllers
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey()
+                IssuerSigningKey = _authOptions.GetSymmetricSecurityKey()
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
