@@ -348,7 +348,8 @@ namespace ASBDDS.API.Controllers
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _authOptions.GetSymmetricSecurityKey()
+                IssuerSigningKey = _authOptions.GetSymmetricSecurityKey(),
+                ValidateLifetime = false
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
