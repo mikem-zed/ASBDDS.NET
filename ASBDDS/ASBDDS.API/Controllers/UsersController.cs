@@ -248,7 +248,7 @@ namespace ASBDDS.API.Controllers
                 {
                     var userClaims = await GetClaimsIdentity(dbuser);
                     var now = DateTime.UtcNow;
-                    var expires = now.Add(TimeSpan.FromMinutes(1));
+                    var expires = now.Add(TimeSpan.FromMinutes(_authOptions.Lifetime));
                     // создаем JWT-токен
                     var jwt = new JwtSecurityToken(
                         issuer: _authOptions.Issuer,
@@ -301,7 +301,7 @@ namespace ASBDDS.API.Controllers
                     
                     var userClaims = await GetClaimsIdentity(dbUser);
                     var now = DateTime.UtcNow;
-                    var expires = now.Add(TimeSpan.FromMinutes(1));
+                    var expires = now.Add(TimeSpan.FromMinutes(_authOptions.Lifetime));
 
                     var jwt = new JwtSecurityToken(
                         issuer: _authOptions.Issuer,
