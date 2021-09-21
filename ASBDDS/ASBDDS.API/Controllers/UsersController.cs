@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -157,10 +158,11 @@ namespace ASBDDS.API.Controllers
                 var result = await _userManager.CreateAsync(user, reqUser.Password);
                 if (result.Succeeded)
                 {
+                    var dbUser = _context.Users.FirstOrDefault(u => u.UserName.Equals(user.UserName));
                     var userDefaultProject = new Project()
                     {
-                        Creator = user,
-                        Name = user.Name + " " + user.LastName + "'s Project",
+                        Creator = dbUser,
+                        Name = dbUser.Name + " " + dbUser.LastName + "'s Project",
                     };
                     _context.Projects.Add(userDefaultProject);
                     await _context.SaveChangesAsync();
