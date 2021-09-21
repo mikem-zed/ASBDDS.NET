@@ -1,0 +1,26 @@
+version: "3.4"
+services:
+  asbdds-main:
+    image: goodmobiledevices/asbdds:linux
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - "ConnectionStrings:DataDbConnection=Host=localhost;Database=ASBDDS;Username=postgres;Password=example-password"
+      - "Networks:Devices:IP="
+      - "Networks:Devices:DHCP:Broadcast=10.10.88.255"
+      - "Networks:Devices:DHCP:ServerIdentifier=10.10.88.5"
+      - "Networks:Devices:DHCP:Pool=10.10.88.6-126"
+      - "Networks:Devices:DHCP:Gateway=10.10.88.1"
+      - "API:Auth:Key=MySuperSecretExampleKey"
+    network_mode: host
+
+  db:
+    image: postgres
+    restart: always
+    network_mode: host
+    environment:
+      POSTGRES_PASSWORD: example-password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+    - /home/ubuntu/asbdds_postgresql/data:/var/lib/postgresql/data
