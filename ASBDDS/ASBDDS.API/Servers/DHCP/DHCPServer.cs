@@ -23,12 +23,10 @@ namespace ASBDDS.API.Servers.DHCP
     {
         public DHCPServer(IPAddress host, int port, IDHCPLeasesManager leasesManager, List<OptionItem> options) : base(host, port, leasesManager, options)
         {
-            bindAddress = host;
             OnStatusChange += _OnStatusChange;
             OnTrace += _OnTrace;
         }
-
-        private IPAddress bindAddress;
+        
         private static void _OnStatusChange(object sender, DHCPJPMikkers.DHCPStopEventArgs e)
         {
             Trace.WriteLine(e?.Reason);
@@ -72,7 +70,7 @@ namespace ASBDDS.API.Servers.DHCP
             }
 
             targetMsg.BootFileName = bootFile;
-            targetMsg.NextServerIPAddress = bindAddress;
+            targetMsg.NextServerIPAddress = _serverIdentifierOption.IPAddress;
         }
     }
 
