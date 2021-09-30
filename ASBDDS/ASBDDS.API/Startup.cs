@@ -138,7 +138,7 @@ namespace ASBDDS.NET
             // Configure and start TFTP Server
             TFTPServerHelper.Initialize(serviceProvider);
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/admin"), adminPanel =>
             {
