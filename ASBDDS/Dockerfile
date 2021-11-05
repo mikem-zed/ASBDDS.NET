@@ -16,7 +16,6 @@ COPY ["ExtLibraries/tftp.net/Tftp.Net/Tftp.Net.csproj", "ExtLibraries/tftp.net/T
 RUN dotnet restore "ASBDDS.API/ASBDDS.API.csproj"
 COPY . .
 WORKDIR "/src/ASBDDS.API"
-RUN dotnet build "ASBDDS.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "ASBDDS.API.csproj" -c Release -o /app/publish
