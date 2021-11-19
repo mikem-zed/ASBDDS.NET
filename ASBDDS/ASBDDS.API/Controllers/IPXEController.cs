@@ -47,7 +47,7 @@ namespace ASBDDS.API.Controllers
             if (deviceRent != null)
             {
                 deviceRent.Status = DeviceRentStatus.CLOSED;
-                deviceRent.Closed = DateTime.Now;
+                deviceRent.Closed = DateTime.UtcNow;
                 _context.Entry(deviceRent).State = EntityState.Modified;
             }
 
