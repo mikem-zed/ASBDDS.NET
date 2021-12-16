@@ -1,4 +1,5 @@
 # ASBDDS.NET
+This system is DEMO ONLY(proof of concept).
 ASBDDS.NET is a simple ARM Single Board Devices Deployment System API and WEB Interface writed in C# net5.0.
 This set of software and devices is used to automate the deployment of systems on arm single board devices.
 
