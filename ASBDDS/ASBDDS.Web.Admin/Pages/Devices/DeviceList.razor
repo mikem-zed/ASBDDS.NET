@@ -112,7 +112,8 @@
     private async void PowerOffDevice(DeviceAdminResponse device)
     {
         _loading = true;
-        await _httpClient.Post<DeviceAdminResponse>("api/admin/devices/" + device.Id + "/poweroff", null,
+        object nullObject = null;
+        await _httpClient.Post<DeviceAdminResponse>("api/admin/devices/" + device.Id + "/poweroff", nullObject,
             async _ =>
             {
                 await GetListDataFromServer(true);
@@ -126,7 +127,8 @@
     private async void PowerOnDevice(DeviceAdminResponse device)
     {
         _loading = true;
-        await _httpClient.Post<ApiResponse<DeviceAdminResponse>>("api/admin/devices/" + device.Id + "/poweron", null,
+        object nullObject = null;
+        await _httpClient.Post<ApiResponse<DeviceAdminResponse>>("api/admin/devices/" + device.Id + "/poweron", nullObject,
             async _ =>
             {
                 await GetListDataFromServer(true);

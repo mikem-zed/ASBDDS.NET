@@ -136,9 +136,9 @@
         };
         var result = await _dialogService.Show<DeleteConfirmDialog>("Power off", parameters).Result;
         if (result.Cancelled) return;
-        
+        object nullObject = null;
         await _httpClient.Post<DeviceRentUserResponse>(
-            "api/devices/rents/" + device.Id + "/poweroff", null, 
+            "api/devices/rents/" + device.Id + "/poweroff", nullObject, 
             async _ =>
             {
                 await GetListDataFromServer(true);
@@ -158,9 +158,9 @@
 
         var result = await _dialogService.Show<DeleteConfirmDialog>("Power on", parameters).Result;
         if (result.Cancelled) return;
-        
+        object nullObject = null;
         await _httpClient.Post<DeviceRentUserResponse>(
-            "api/devices/rents/" + device.Id + "/poweron", null, async _ =>
+            "api/devices/rents/" + device.Id + "/poweron", nullObject, async _ =>
             {
                 await GetListDataFromServer(true);
             }, async response =>
