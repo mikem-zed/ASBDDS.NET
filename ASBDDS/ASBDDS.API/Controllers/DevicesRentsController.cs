@@ -416,10 +416,12 @@ namespace ASBDDS.API.Controllers
         /// Get device console output by rent
         /// </summary>
         /// <param name="id">device rent id</param>
+        /// <param name="maxLines">maximum number of log lines</param>
         /// <param name="projectId">project id</param>
         /// <returns></returns>
         [HttpGet("{id}/console/output")]
-        public async Task<ApiResponse<List<ConsoleOutputDto>>> GetDeviceConsoleOutputByRent([FromHeader(Name=ProjectIdHeader)][Required] Guid projectId, Guid id)
+        public async Task<ApiResponse<List<ConsoleOutputDto>>> GetDeviceConsoleOutputByRent([FromHeader(Name=ProjectIdHeader)][Required]Guid projectId, 
+            Guid id, [FromQuery(Name="max_lines")]int maxLines = 0)
         {
             var resp = new ApiResponse<List<ConsoleOutputDto>>();
             try
@@ -448,8 +450,13 @@ namespace ASBDDS.API.Controllers
                     resp.Status.Message = "the device does not have a console";
                     return resp;
                 }
-                resp.Data = _consolesManager.GetConsoleOutput(deviceRent.Device.Console, deviceRent.Created)
-                    .Select(output => _mapper.Map<ConsoleOutputDto>(output)).TakeLast(500).ToList();
+                var logs = _consolesManager.GetConsoleOutput(deviceRent.Device.Console, deviceRent.Created)
+                    .Select(output => _mapper.Map<ConsoleOutputDto>(output)).ToList();
+                if (maxLines != 0)
+                {
+                    logs = logs.TakeLast(maxLines).ToList();
+                }
+                resp.Data = logs;
             }
             catch (Exception e)
             {
